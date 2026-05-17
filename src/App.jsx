@@ -17,6 +17,7 @@ import Account from './pages/Account'
 import SkinQuiz from './pages/SkinQuiz'
 import Bundles from './pages/Bundles'
 import AdminBundles from './pages/AdminBundles'
+import AdminPanel from './pages/AdminPanel'
 import { useCart } from './context/CartContext'
 import { useLanguage } from './context/LanguageContext'
 
@@ -71,6 +72,16 @@ function PageTransition({ children }) {
 
 export default function App() {
   const location = useLocation()
+  const isAdmin = location.pathname.startsWith('/admin')
+
+  if (isAdmin) {
+    return (
+      <Routes location={location} key={location.pathname}>
+        <Route path="/admin/bundles" element={<AdminBundles />} />
+        <Route path="/admin/*" element={<AdminPanel />} />
+      </Routes>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
@@ -89,7 +100,6 @@ export default function App() {
           <Route path="/account" element={<PageTransition><Account /></PageTransition>} />
           <Route path="/quiz" element={<PageTransition><SkinQuiz /></PageTransition>} />
           <Route path="/bundles" element={<PageTransition><Bundles /></PageTransition>} />
-          <Route path="/admin/bundles" element={<PageTransition><AdminBundles /></PageTransition>} />
         </Routes>
       </AnimatePresence>
       <Footer />

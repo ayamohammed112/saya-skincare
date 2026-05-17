@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useAccount } from '../context/AccountContext'
+import { supabase } from '../lib/supabase'
 
 export default function Checkout() {
   const { items, total, removeItem, updateQty, clearCart } = useCart()
@@ -12,17 +13,29 @@ export default function Checkout() {
   const navigate = useNavigate()
   const c = tr.checkout
 
+  // Customer fields
+  const [formName, setFormName] = useState('')
+  const [formPhone, setFormPhone] = useState('')
+  const [formEmail, setFormEmail] = useState('')
+  const [formAddress, setFormAddress] = useState('')
+  const [governorate, setGovernorate] = useState('cairo')
+
+  // Payment & discount
   const [payment, setPayment] = useState('cod')
+  const [screenshotFile, setScreenshotFile] = useState(null)
   const [discountCode, setDiscountCode] = useState('')
   const [discount, setDiscount] = useState(0)
   const [discountError, setDiscountError] = useState(false)
   const [discountApplied, setDiscountApplied] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [city, setCity] = useState('cairo')
   const [pointsRedeemed, setPointsRedeemed] = useState(false)
   const [pointsDiscount, setPointsDiscount] = useState(0)
 
-  const baseShipping = city === 'cairo' ? 85 : 100
+  // Submission
+  const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [savedOrderId, setSavedOrderId] = useState(null)
+
+  const baseShipping = governorate === 'cairo' ? 85 : 100
   const shipping = total > 300 ? 0 : baseShipping
   const finalTotal = total - discount - pointsDiscount + shipping
 
@@ -47,14 +60,60 @@ export default function Checkout() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setSubmitting(true)
+
+    let screenshotUrl = null
+
+    // Upload payment screenshot to Supabase Storage if wallet payment
+    if (payment === 'wallet' && screenshotFile) {
+      const ext = screenshotFile.name.split('.').pop()
+      const fileName = `${Date.now()}.${ext}`
+      const { data: uploadData } = await supabase.storage
+        .from('screenshots')
+        .upload(fileName, screenshotFile)
+        .catch(() => ({ data: null }))
+      if (uploadData) {
+        const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(fileName)
+        screenshotUrl = publicUrl
+      }
+    }
+
+    // Save order to Supabase
+    const orderPayload = {
+      customer_name: formName,
+      customer_phone: formPhone,
+      customer_email: formEmail || null,
+      customer_address: formAddress,
+      governorate,
+      payment_method: payment,
+      payment_screenshot_url: screenshotUrl,
+      items: items.map(i => ({ id: i.id, name: i.name, nameEn: i.nameEn, price: i.price, qty: i.qty, image: i.image })),
+      total: finalTotal,
+      shipping,
+      discount: discount + pointsDiscount,
+      status: 'pending',
+    }
+
+    const { data: orderData } = await supabase
+      .from('orders')
+      .insert(orderPayload)
+      .select('id')
+      .single()
+      .catch(() => ({ data: null }))
+
+    const orderId = orderData?.id || `SY-${Date.now()}`
+    setSavedOrderId(orderId)
+
     if (user) {
       earnPoints(finalTotal)
-      recordOrder({ id: `SY-${Date.now()}`, date: new Date().toLocaleDateString('ar-EG'), total: finalTotal })
+      recordOrder({ id: orderId, date: new Date().toLocaleDateString('ar-EG'), total: finalTotal })
     }
+
     clearCart()
     setSubmitted(true)
+    setSubmitting(false)
   }
 
   if (submitted) {
@@ -64,7 +123,12 @@ export default function Checkout() {
           <span className="material-symbols-outlined text-[80px] ms-filled">check_circle</span>
         </motion.div>
         <h1 className="font-garamond text-headline-md text-primary mb-4">{lang === 'ar' ? 'تم استلام طلبك!' : 'Order Received!'}</h1>
-        <p className="font-jakarta text-body-lg text-on-surface-variant mb-8">{lang === 'ar' ? 'شكراً لطلبك. سنتواصل معك قريباً لتأكيد التوصيل.' : 'Thank you for your order. We will contact you soon to confirm delivery.'}</p>
+        <p className="font-jakarta text-body-lg text-on-surface-variant mb-2">{lang === 'ar' ? 'شكراً لطلبك. سنتواصل معك قريباً لتأكيد التوصيل.' : 'Thank you for your order. We will contact you soon to confirm delivery.'}</p>
+        {savedOrderId && (
+          <p className="font-jakarta text-label-md text-secondary mb-8">
+            {lang === 'ar' ? `رقم الطلب: ${savedOrderId}` : `Order ID: ${savedOrderId}`}
+          </p>
+        )}
         <div className="flex gap-4 justify-center">
           <Link to="/" className="bg-primary text-on-primary px-10 py-4 rounded-full font-jakarta text-label-md hover:opacity-90 transition-opacity inline-block">
             {lang === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
@@ -117,6 +181,8 @@ export default function Checkout() {
                     <input
                       required
                       type="text"
+                      value={formName}
+                      onChange={e => setFormName(e.target.value)}
                       className="w-full bg-transparent border-b border-outline-variant/40 py-2 focus:outline-none focus:border-primary transition-colors font-jakarta text-body-md"
                       placeholder={lang === 'ar' ? 'أدخل اسمك الثلاثي' : 'Enter your full name'}
                     />
@@ -127,6 +193,8 @@ export default function Checkout() {
                       required
                       type="tel"
                       dir="ltr"
+                      value={formPhone}
+                      onChange={e => setFormPhone(e.target.value)}
                       pattern="[0-9]{10,11}"
                       className="w-full bg-transparent border-b border-outline-variant/40 py-2 focus:outline-none focus:border-primary transition-colors font-jakarta text-body-md text-right"
                       placeholder="01x xxxx xxxx"
@@ -137,6 +205,8 @@ export default function Checkout() {
                   <label className="block font-jakarta text-label-md text-secondary mb-1">{c.email}</label>
                   <input
                     type="email"
+                    value={formEmail}
+                    onChange={e => setFormEmail(e.target.value)}
                     className="w-full bg-transparent border-b border-outline-variant/40 py-2 focus:outline-none focus:border-primary transition-colors font-jakarta text-body-md"
                     placeholder="example@mail.com"
                   />
@@ -145,19 +215,19 @@ export default function Checkout() {
                   <div>
                     <label className="block font-jakarta text-label-md text-secondary mb-1">{c.city}</label>
                     <select
-                      value={city}
-                      onChange={e => setCity(e.target.value)}
+                      value={governorate}
+                      onChange={e => setGovernorate(e.target.value)}
                       className="w-full bg-transparent border-b border-outline-variant/40 py-2 focus:outline-none focus:border-primary transition-colors font-jakarta text-body-md appearance-none"
                     >
                       <option value="cairo">{lang === 'ar' ? 'القاهرة' : 'Cairo'}</option>
-                      <option value="other">{lang === 'ar' ? 'الجيزة' : 'Giza'}</option>
-                      <option value="other">{lang === 'ar' ? 'الإسكندرية' : 'Alexandria'}</option>
-                      <option value="other">{lang === 'ar' ? 'الأقصر' : 'Luxor'}</option>
-                      <option value="other">{lang === 'ar' ? 'أسوان' : 'Aswan'}</option>
-                      <option value="other">{lang === 'ar' ? 'بورسعيد' : 'Port Said'}</option>
-                      <option value="other">{lang === 'ar' ? 'السويس' : 'Suez'}</option>
-                      <option value="other">{lang === 'ar' ? 'المنصورة' : 'Mansoura'}</option>
-                      <option value="other">{lang === 'ar' ? 'طنطا' : 'Tanta'}</option>
+                      <option value="giza">{lang === 'ar' ? 'الجيزة' : 'Giza'}</option>
+                      <option value="alex">{lang === 'ar' ? 'الإسكندرية' : 'Alexandria'}</option>
+                      <option value="luxor">{lang === 'ar' ? 'الأقصر' : 'Luxor'}</option>
+                      <option value="aswan">{lang === 'ar' ? 'أسوان' : 'Aswan'}</option>
+                      <option value="portsaid">{lang === 'ar' ? 'بورسعيد' : 'Port Said'}</option>
+                      <option value="suez">{lang === 'ar' ? 'السويس' : 'Suez'}</option>
+                      <option value="mansoura">{lang === 'ar' ? 'المنصورة' : 'Mansoura'}</option>
+                      <option value="tanta">{lang === 'ar' ? 'طنطا' : 'Tanta'}</option>
                       <option value="other">{lang === 'ar' ? 'محافظة أخرى' : 'Other Governorate'}</option>
                     </select>
                   </div>
@@ -166,6 +236,8 @@ export default function Checkout() {
                     <input
                       required
                       type="text"
+                      value={formAddress}
+                      onChange={e => setFormAddress(e.target.value)}
                       className="w-full bg-transparent border-b border-outline-variant/40 py-2 focus:outline-none focus:border-primary transition-colors font-jakarta text-body-md"
                       placeholder={lang === 'ar' ? 'الشارع، المبنى، الشقة' : 'Street, Building, Apt'}
                     />
@@ -206,8 +278,15 @@ export default function Checkout() {
                     </p>
                     <label className="flex flex-col items-center justify-center py-6 bg-white border border-outline-variant/30 rounded-lg cursor-pointer hover:shadow-md transition-shadow">
                       <span className="material-symbols-outlined text-primary text-[32px] mb-2">upload_file</span>
-                      <span className="font-jakarta text-label-md text-on-surface-variant">{c.upload}</span>
-                      <input type="file" className="hidden" accept="image/*" />
+                      <span className="font-jakarta text-label-md text-on-surface-variant">
+                        {screenshotFile ? screenshotFile.name : c.upload}
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={e => setScreenshotFile(e.target.files[0] || null)}
+                      />
                     </label>
                   </div>
                 )}
@@ -362,13 +441,18 @@ export default function Checkout() {
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: submitting ? 1 : 1.02 }}
+                whileTap={{ scale: submitting ? 1 : 0.98 }}
                 type="submit"
-                className="w-full bg-primary text-white font-garamond text-headline-sm py-5 rounded-full shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-3"
+                disabled={submitting}
+                className="w-full bg-primary text-white font-garamond text-headline-sm py-5 rounded-full shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {c.confirm}
-                <span className="material-symbols-outlined" style={{ transform: 'rotate(180deg)' }}>arrow_back</span>
+                {submitting
+                  ? (lang === 'ar' ? 'جارٍ الإرسال...' : 'Placing order...')
+                  : c.confirm}
+                {!submitting && (
+                  <span className="material-symbols-outlined" style={{ transform: 'rotate(180deg)' }}>arrow_back</span>
+                )}
               </motion.button>
               <p className="text-center font-jakarta text-label-md text-on-surface-variant mt-4">{c.terms}</p>
             </div>
