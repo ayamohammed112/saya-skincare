@@ -5,8 +5,6 @@ import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useAccount } from '../context/AccountContext'
 
-const GIFT_WRAP_PRICE = 20
-
 export default function Checkout() {
   const { items, total, removeItem, updateQty, clearCart } = useCart()
   const { tr, lang } = useLanguage()
@@ -21,14 +19,12 @@ export default function Checkout() {
   const [discountApplied, setDiscountApplied] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [city, setCity] = useState('cairo')
-  const [giftWrap, setGiftWrap] = useState(false)
   const [pointsRedeemed, setPointsRedeemed] = useState(false)
   const [pointsDiscount, setPointsDiscount] = useState(0)
 
   const baseShipping = city === 'cairo' ? 85 : 100
   const shipping = total > 300 ? 0 : baseShipping
-  const giftWrapCost = giftWrap ? GIFT_WRAP_PRICE : 0
-  const finalTotal = total - discount - pointsDiscount + shipping + giftWrapCost
+  const finalTotal = total - discount - pointsDiscount + shipping
 
   const applyDiscount = () => {
     if (discountCode.toUpperCase() === 'SAYA10') {
@@ -176,29 +172,6 @@ export default function Checkout() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Gift Wrapping */}
-            <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
-              <label className="flex items-center justify-between gap-4 cursor-pointer">
-                <div className="flex-1 text-right">
-                  <span className="block font-jakarta text-body-md text-on-surface mb-1">
-                    {lang === 'ar' ? 'تغليف هدايا' : 'Gift Wrapping'}
-                  </span>
-                  <span className="block font-jakarta text-body-sm text-on-surface-variant">
-                    {lang === 'ar' ? 'تغليف أنيق برباط وبطاقة هدية — يُضاف ٢٠ ج.م' : 'Elegant wrap with ribbon & gift card — adds 20 EGP'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="font-jakarta text-label-md text-secondary font-bold">+{GIFT_WRAP_PRICE} ج.م</span>
-                  <div
-                    onClick={() => setGiftWrap(v => !v)}
-                    className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${giftWrap ? 'bg-primary' : 'bg-outline-variant/40'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${giftWrap ? 'right-1' : 'left-1'}`} />
-                  </div>
-                </div>
-              </label>
             </div>
 
             {/* Payment */}
@@ -367,12 +340,6 @@ export default function Checkout() {
                   <div className="flex justify-between font-jakarta text-body-md text-error">
                     <span>{lang === 'ar' ? 'خصم النقاط' : 'Points Discount'}</span>
                     <span>-{pointsDiscount} ج.م</span>
-                  </div>
-                )}
-                {giftWrap && (
-                  <div className="flex justify-between font-jakarta text-body-md text-on-surface-variant">
-                    <span>{lang === 'ar' ? 'تغليف هدايا' : 'Gift Wrapping'}</span>
-                    <span>+{GIFT_WRAP_PRICE} ج.م</span>
                   </div>
                 )}
                 <div className="flex justify-between font-jakarta text-body-md">

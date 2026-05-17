@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
 import { products } from '../data/products'
+import { bundles, getBundleProducts } from '../data/bundles'
 
 const ITEMS_PER_PAGE = 9
 
@@ -17,7 +18,7 @@ function StarRating({ rating }) {
   )
 }
 
-const CAT_KEYS = ['all', 'skincare', 'perfumes', 'haircare']
+const CAT_KEYS = ['all', 'skincare', 'perfumes', 'haircare', 'offers']
 
 export default function Shop() {
   const { addItem } = useCart()
@@ -135,7 +136,69 @@ export default function Shop() {
 
         {/* Grid */}
         <div className="lg:col-span-3">
-          <AnimatePresence mode="wait">
+          {/* Offers / Bundles */}
+          {selectedCat === 'offers' && (
+            <motion.div
+              key="offers"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter"
+            >
+              {bundles.map((bundle, i) => {
+                const firstProduct = getBundleProducts(bundle)[0]
+                return (
+                  <motion.div
+                    key={bundle.id}
+                    className="group relative bg-white rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-lg transition-all duration-300"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                  >
+                    <div className="aspect-[4/5] w-full overflow-hidden bg-surface-container-low relative">
+                      {firstProduct && (
+                        <img
+                          src={firstProduct.image}
+                          alt={lang === 'ar' ? bundle.name : bundle.nameEn}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+                      <span className="absolute top-4 right-4 bg-error text-white px-3 py-1 rounded-full font-jakarta text-label-md">
+                        {lang === 'ar' ? bundle.badge : bundle.badgeEn}
+                      </span>
+                    </div>
+                    <div className="p-6 text-right">
+                      <span className="font-jakarta text-label-md text-secondary uppercase tracking-widest">
+                        {lang === 'ar' ? 'عرض' : 'Bundle'}
+                      </span>
+                      <h3 className="font-garamond text-headline-sm text-primary mb-2 mt-1">
+                        {lang === 'ar' ? bundle.name : bundle.nameEn}
+                      </h3>
+                      <div className="flex flex-row-reverse items-center gap-3 mb-6">
+                        <span className="font-jakarta text-body-md text-primary font-bold">{bundle.bundlePrice} ج.م</span>
+                        <span className="font-jakarta text-body-sm text-on-surface-variant line-through">{bundle.originalTotal} ج.م</span>
+                      </div>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => addItem({
+                          id: bundle.id,
+                          name: bundle.name,
+                          nameEn: bundle.nameEn,
+                          price: bundle.bundlePrice,
+                          image: firstProduct?.image,
+                        })}
+                        className="w-full bg-primary text-white py-3 rounded-full font-jakarta text-label-md hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+                        {s.addToCart}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          )}
+
+          {selectedCat !== 'offers' && <AnimatePresence mode="wait">
             {paginated.length === 0 ? (
               <motion.div
                 key="empty"
@@ -219,10 +282,10 @@ export default function Shop() {
                 ))}
               </motion.div>
             )}
-          </AnimatePresence>
+          </AnimatePresence>}
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {selectedCat !== 'offers' && totalPages > 1 && (
             <div className="mt-20 flex justify-center gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}

@@ -70,7 +70,7 @@ const t = {
       sortBy: 'ترتيب حسب',
       sortOptions: ['الأحدث', 'السعر: من الأقل للأعلى', 'السعر: من الأعلى للأقل', 'الأكثر مبيعاً'],
       addToCart: 'إضافة للسلة',
-      categories: ['الكل', 'العناية بالبشرة', 'العطور', 'العناية بالشعر'],
+      categories: ['الكل', 'العناية بالبشرة', 'العطور', 'العناية بالشعر', 'العروض'],
     },
     product: {
       rating: 'تقييم',
@@ -228,7 +228,7 @@ const t = {
       sortBy: 'Sort By',
       sortOptions: ['Newest', 'Price: Low to High', 'Price: High to Low', 'Best Selling'],
       addToCart: 'Add to Cart',
-      categories: ['All', 'Skincare', 'Perfumes', 'Haircare'],
+      categories: ['All', 'Skincare', 'Perfumes', 'Haircare', 'Offers'],
     },
     product: {
       rating: 'reviews',
