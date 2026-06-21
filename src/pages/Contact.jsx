@@ -41,7 +41,7 @@ export default function Contact() {
 
       {/* Contact cards */}
       <section className="py-16 px-margin-mobile md:px-margin-desktop max-w-site mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           {[
             {
               icon: 'chat',
@@ -51,15 +51,6 @@ export default function Contact() {
               cta: lang === 'ar' ? 'ابدأ المحادثة' : 'Start Chat',
               color: 'bg-green-50 border-green-200',
               iconColor: 'text-green-600',
-            },
-            {
-              icon: 'mail',
-              title: c.emailLabel,
-              detail: 'hello@saya-skincare.com',
-              href: 'mailto:hello@saya-skincare.com',
-              cta: lang === 'ar' ? 'أرسلي بريداً' : 'Send Email',
-              color: 'bg-primary/5 border-primary/20',
-              iconColor: 'text-primary',
             },
             {
               icon: 'location_on',

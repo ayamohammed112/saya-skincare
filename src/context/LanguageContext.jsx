@@ -149,7 +149,6 @@ const t = {
       terms: 'الشروط والأحكام',
       address: 'القاهرة، مصر',
       phone: '+201102903151',
-      emailAddr: 'hello@saya-skincare.com',
       links: {
         skincare: 'العناية بالبشرة',
         perfumes: 'العطور',
@@ -307,7 +306,6 @@ const t = {
       terms: 'Terms & Conditions',
       address: 'Cairo, Egypt',
       phone: '+201102903151',
-      emailAddr: 'hello@saya-skincare.com',
       links: {
         skincare: 'Skincare',
         perfumes: 'Perfumes',

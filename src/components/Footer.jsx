@@ -1,9 +1,23 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+
+const SITE_URL = 'https://saya-skincare.vercel.app'
 
 export default function Footer() {
   const { tr } = useLanguage()
   const f = tr.footer
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try { await navigator.share({ url: SITE_URL, title: 'SAYA Natural Skincare' }) } catch {}
+    } else {
+      await navigator.clipboard.writeText(SITE_URL)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   return (
     <footer className="bg-surface-container w-full pt-16 pb-8 border-t border-outline-variant/30">
@@ -19,9 +33,14 @@ export default function Footer() {
             <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">public</span>
             </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
+            <button onClick={handleShare} className="relative text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">share</span>
-            </a>
+              {copied && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-[10px] font-jakarta px-2 py-1 rounded whitespace-nowrap">
+                  Copied!
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -78,7 +97,6 @@ export default function Footer() {
             </li>
             <li className="text-label-md font-jakarta text-on-surface-variant">{f.address}</li>
             <li className="text-label-md font-jakarta text-on-surface-variant" dir="ltr">{f.phone}</li>
-            <li className="text-label-md font-jakarta text-on-surface-variant">{f.emailAddr}</li>
           </ul>
         </div>
       </div>
