@@ -25,7 +25,7 @@ function ProductCard({ product, onAdd }) {
   const displayName = lang === 'ar' ? product.name : (product.nameEn || product.name)
 
   return (
-    <div className="min-w-[280px] md:min-w-[300px] group snap-start flex-shrink-0">
+    <div className="min-w-[280px] md:min-w-[300px] group snap-start flex-shrink-0 cursor-pointer" onClick={() => navigate(`/shop/${product.id}`)}>
       <div
         className="relative aspect-[4/5] bg-white rounded-lg overflow-hidden mb-4 shadow-sm transition-shadow duration-300 group-hover:shadow-lg cursor-pointer"
         onClick={() => navigate(`/shop/${product.id}`)}

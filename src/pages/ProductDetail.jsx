@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { products, relatedProducts } from '../data/products'
+import { supabase } from '../lib/supabase'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -23,6 +24,13 @@ export default function ProductDetail() {
   const [mainImg, setMainImg] = useState(0)
   const [qty, setQty] = useState(1)
   const [activeTab, setActiveTab] = useState(0)
+  const [sizes, setSizes] = useState([])
+  const [selectedSize, setSelectedSize] = useState(null)
+
+  useEffect(() => {
+    supabase.from('product_sizes').select('label').eq('product_id', product.id).order('sort_order')
+      .then(({ data }) => { setSizes((data || []).map(s => s.label)); setSelectedSize(null) })
+  }, [product.id])
 
   const handleAddToCart = () => {
     addItem({ ...product, qty })
@@ -93,6 +101,30 @@ export default function ProductDetail() {
           <div className="font-garamond text-headline-md text-primary mb-8">{product.price} ج.م</div>
 
           <p className="font-jakarta text-body-lg text-on-surface-variant mb-10 leading-relaxed">{product.description}</p>
+
+          {/* Size selector */}
+          {sizes.length > 0 && (
+            <div className="mb-8">
+              <p className="font-jakarta text-label-md text-on-surface-variant uppercase tracking-wider mb-3">
+                {lang === 'ar' ? 'الحجم' : 'Size'}
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                {sizes.map(size => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size === selectedSize ? null : size)}
+                    className={`px-5 py-2 rounded-xl border-2 font-jakarta text-body-sm transition-all ${
+                      selectedSize === size
+                        ? 'border-primary bg-primary text-on-primary shadow-md'
+                        : 'border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Qty + Actions */}
           <div className="flex flex-col gap-8">

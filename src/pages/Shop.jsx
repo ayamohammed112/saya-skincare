@@ -232,10 +232,11 @@ export default function Shop() {
                 {paginated.map((p, i) => (
                   <motion.div
                     key={p.id}
-                    className="group relative bg-white rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-lg transition-all duration-300"
+                    className="group relative bg-white rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: i * 0.05 }}
+                    onClick={() => navigate(`/shop/${p.id}`)}
                   >
                     <div
                       className="aspect-[4/5] w-full overflow-hidden bg-surface-container-low relative cursor-pointer"
@@ -271,7 +272,7 @@ export default function Shop() {
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => addItem(p)}
+                        onClick={e => { e.stopPropagation(); addItem(p) }}
                         className="w-full bg-primary text-white py-3 rounded-full font-jakarta text-label-md hover:opacity-90 transition-all flex items-center justify-center gap-2"
                       >
                         <span className="material-symbols-outlined text-[18px]">shopping_bag</span>

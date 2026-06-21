@@ -16,7 +16,7 @@ const NAV = [
   { id: 'dashboard', label: 'لوحة التحكم', labelEn: 'Dashboard', icon: '⊞' },
   { id: 'orders', label: 'الطلبات', labelEn: 'Orders', icon: '📦' },
   { id: 'products', label: 'المنتجات', labelEn: 'Products', icon: '🧴' },
-  { id: 'bundles', label: 'الحزم', labelEn: 'Bundles', icon: '🎁' },
+  { id: 'bundles', label: 'باكيدجات', labelEn: 'Bundles', icon: '🎁' },
   { id: 'customers', label: 'العملاء', labelEn: 'Customers', icon: '👥' },
   { id: 'discounts', label: 'كودات الخصم', labelEn: 'Discounts', icon: '🏷️' },
   { id: 'analytics', label: 'التحليلات', labelEn: 'Analytics', icon: '📊' },

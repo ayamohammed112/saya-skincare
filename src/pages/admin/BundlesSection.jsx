@@ -81,7 +81,7 @@ export default function BundlesSection() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-white text-xl font-bold">الحزم | Bundles</h1>
+        <h1 className="text-white text-xl font-bold">باكيدجات | Bundles</h1>
         <button onClick={openNew} className="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
           + حزمة جديدة | New Bundle
         </button>

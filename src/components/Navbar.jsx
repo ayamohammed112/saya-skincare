@@ -17,7 +17,7 @@ export default function Navbar() {
   const links = [
     { to: '/', label: tr.nav.home },
     { to: '/shop', label: tr.nav.shop },
-    { to: '/bundles', label: lang === 'ar' ? 'الحزم' : 'Bundles' },
+    { to: '/bundles', label: lang === 'ar' ? 'باكيدجات' : 'Bundles' },
     { to: '/quiz', label: lang === 'ar' ? 'اختبار البشرة' : 'Skin Quiz' },
     { to: '/about', label: tr.nav.about },
     { to: '/contact', label: tr.nav.contact },

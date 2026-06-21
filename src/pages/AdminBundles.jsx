@@ -88,7 +88,7 @@ export default function AdminBundles() {
               )}
             </div>
             <h1 className="font-garamond text-headline-md text-primary">
-              {lang === 'ar' ? 'إدارة الحزم' : 'Manage Bundles'}
+              {lang === 'ar' ? 'إدارة الباكيدجات' : 'Manage Bundles'}
             </h1>
           </div>
           <button

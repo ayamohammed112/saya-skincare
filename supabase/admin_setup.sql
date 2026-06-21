@@ -48,3 +48,14 @@ ON CONFLICT (code) DO NOTHING;
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true) ON CONFLICT DO NOTHING;
 
 -- Enable realtime on orders table (Dashboard > Database > Replication > orders)
+
+-- product_sizes: per-product size options managed via admin panel
+CREATE TABLE IF NOT EXISTS public.product_sizes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE public.product_sizes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read_product_sizes" ON public.product_sizes FOR SELECT USING (true);

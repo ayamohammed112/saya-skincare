@@ -16,6 +16,7 @@ export default function ProductsSection() {
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
+  const [sizesInput, setSizesInput] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -26,9 +27,24 @@ export default function ProductsSection() {
 
   useEffect(() => { load() }, [])
 
-  const openNew = () => { setForm(BLANK); setEditing('new'); setImageFile(null) }
-  const openEdit = (p) => { setForm({ ...BLANK, ...p }); setEditing(p.id); setImageFile(null) }
-  const cancel = () => { setEditing(null); setForm(BLANK); setImageFile(null) }
+  const loadSizesForProduct = async (productId) => {
+    const { data } = await supabase.from('product_sizes').select('label').eq('product_id', productId).order('sort_order')
+    setSizesInput((data || []).map(s => s.label).join(', '))
+  }
+
+  const saveSizesFor = async (productId) => {
+    await supabase.from('product_sizes').delete().eq('product_id', productId)
+    const labels = sizesInput.split(',').map(s => s.trim()).filter(Boolean)
+    if (labels.length > 0) {
+      await supabase.from('product_sizes').insert(
+        labels.map((label, i) => ({ product_id: productId, label, sort_order: i }))
+      )
+    }
+  }
+
+  const openNew = () => { setForm(BLANK); setEditing('new'); setImageFile(null); setSizesInput('') }
+  const openEdit = (p) => { setForm({ ...BLANK, ...p }); setEditing(p.id); setImageFile(null); loadSizesForProduct(p.id) }
+  const cancel = () => { setEditing(null); setForm(BLANK); setImageFile(null); setSizesInput('') }
 
   const uploadImage = async () => {
     if (!imageFile) return form.image_url || null
@@ -58,17 +74,19 @@ export default function ProductsSection() {
       image_url: imageUrl,
     }
     if (editing === 'new') {
-      await supabase.from('products').insert(payload)
-      // Also set inventory alert if threshold specified
-      if (form.low_stock_threshold) {
-        const { data: prod } = await supabase.from('products').select('id').order('created_at', { ascending: false }).limit(1).single()
-        if (prod) await supabase.from('inventory_alerts').upsert({ product_id: prod.id, low_stock_threshold: Number(form.low_stock_threshold) }, { onConflict: 'product_id' })
+      const { data: newProd } = await supabase.from('products').insert(payload).select('id').single()
+      if (newProd) {
+        if (form.low_stock_threshold) {
+          await supabase.from('inventory_alerts').upsert({ product_id: newProd.id, low_stock_threshold: Number(form.low_stock_threshold) }, { onConflict: 'product_id' })
+        }
+        await saveSizesFor(newProd.id)
       }
     } else {
       await supabase.from('products').update(payload).eq('id', editing)
       if (form.low_stock_threshold) {
         await supabase.from('inventory_alerts').upsert({ product_id: editing, low_stock_threshold: Number(form.low_stock_threshold) }, { onConflict: 'product_id' })
       }
+      await saveSizesFor(editing)
     }
     setSaving(false)
     cancel()
@@ -123,6 +141,18 @@ export default function ProductsSection() {
           <div className="flex gap-6 flex-wrap">
             <Toggle label="متوفر | In Stock" checked={form.in_stock} onChange={v => setForm(f => ({ ...f, in_stock: v }))} />
             <Toggle label="مميز | Featured" checked={form.featured} onChange={v => setForm(f => ({ ...f, featured: v }))} />
+          </div>
+
+          {/* Sizes */}
+          <div className="col-span-2">
+            <label className="text-gray-400 text-xs font-semibold block mb-1">الأحجام | Sizes (e.g. 50ml, 100ml, 200ml)</label>
+            <input
+              value={sizesInput}
+              onChange={e => setSizesInput(e.target.value)}
+              placeholder="50ml, 100ml, 200ml"
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-all"
+            />
+            <p className="text-gray-600 text-xs mt-1">ادخلي الأحجام مفصولة بفاصلة | Enter sizes comma-separated</p>
           </div>
 
           {/* Image upload */}
