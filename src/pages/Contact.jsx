@@ -41,47 +41,25 @@ export default function Contact() {
 
       {/* Contact cards */}
       <section className="py-16 px-margin-mobile md:px-margin-desktop max-w-site mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-          {[
-            {
-              icon: 'chat',
-              title: c.whatsapp,
-              detail: '+20 110 290 3151',
-              href: 'https://wa.me/201102903151',
-              cta: lang === 'ar' ? 'ابدأ المحادثة' : 'Start Chat',
-              color: 'bg-green-50 border-green-200',
-              iconColor: 'text-green-600',
-            },
-            {
-              icon: 'location_on',
-              title: c.location,
-              detail: c.address,
-              href: '#map',
-              cta: c.directions,
-              color: 'bg-secondary/5 border-secondary/20',
-              iconColor: 'text-secondary',
-            },
-          ].map((card, i) => (
-            <motion.div
-              key={i}
-              {...fadeUp(i * 0.1)}
-              className={`p-8 rounded-2xl border ${card.color} text-center flex flex-col items-center gap-4`}
+        <div className="flex justify-center mb-20">
+          <motion.div
+            {...fadeUp(0)}
+            className="p-8 rounded-2xl border bg-green-50 border-green-200 text-center flex flex-col items-center gap-4 w-full max-w-sm"
+          >
+            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-green-600">
+              <span className="material-symbols-outlined text-2xl">chat</span>
+            </div>
+            <h3 className="font-garamond text-headline-sm text-primary">{c.whatsapp}</h3>
+            <p className="font-jakarta text-body-sm text-on-surface-variant leading-relaxed" dir="ltr">+20 110 290 3151</p>
+            <a
+              href="https://wa.me/201102903151"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-auto inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-full font-jakarta text-label-md hover:opacity-90 transition-opacity"
             >
-              <div className={`w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center ${card.iconColor}`}>
-                <span className="material-symbols-outlined text-2xl">{card.icon}</span>
-              </div>
-              <h3 className="font-garamond text-headline-sm text-primary">{card.title}</h3>
-              <p className="font-jakarta text-body-sm text-on-surface-variant leading-relaxed">{card.detail}</p>
-              <a
-                href={card.href}
-                target={card.href.startsWith('http') ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                className="mt-auto inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-full font-jakarta text-label-md hover:opacity-90 transition-opacity"
-              >
-                {card.cta}
-              </a>
-            </motion.div>
-          ))}
+              {lang === 'ar' ? 'ابدأ المحادثة' : 'Start Chat'}
+            </a>
+          </motion.div>
         </div>
 
         {/* Form + Social */}
@@ -218,31 +196,6 @@ export default function Contact() {
               </div>
               <span className="material-symbols-outlined text-green-500 mr-auto">arrow_left</span>
             </a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Map placeholder */}
-      <section id="map" className="bg-surface-container py-16">
-        <div className="max-w-site mx-auto px-margin-mobile md:px-margin-desktop">
-          <motion.div {...fadeUp()} className="text-center mb-10">
-            <h2 className="font-garamond text-headline-md text-primary mb-2">{c.location}</h2>
-            <p className="font-jakarta text-body-md text-on-surface-variant">{c.address}</p>
-          </motion.div>
-          <motion.div
-            {...fadeUp(0.1)}
-            className="relative h-80 rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 bg-surface-container-high"
-          >
-            <img src={heroImages.map} alt="map" className="w-full h-full object-cover opacity-80" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white/90 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
-                <span className="material-symbols-outlined ms-filled text-primary text-2xl">location_on</span>
-                <div className="text-right">
-                  <img src="/saya-logo.jpeg" alt="SAYA" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
-                  <p className="font-jakarta text-label-md text-on-surface-variant">{lang === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</p>
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </section>
