@@ -247,7 +247,7 @@ export default function Contact() {
               <div className="bg-white/90 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
                 <span className="material-symbols-outlined ms-filled text-primary text-2xl">location_on</span>
                 <div className="text-right">
-                  <p className="font-garamond text-body-lg text-primary font-semibold">{lang === 'ar' ? 'سايا للعناية الطبيعية' : 'Saya Natural Care'}</p>
+                  <img src="/saya-logo.jpeg" alt="SAYA" className="h-8 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
                   <p className="font-jakarta text-label-md text-on-surface-variant">{lang === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</p>
                 </div>
               </div>
