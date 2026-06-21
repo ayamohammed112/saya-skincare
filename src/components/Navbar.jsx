@@ -42,7 +42,7 @@ export default function Navbar() {
           </NavLink>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex flex-row-reverse items-center gap-8">
+          <div className={`hidden md:flex ${lang === 'ar' ? 'flex-row-reverse' : 'flex-row'} items-center gap-8`}>
             {links.map(l => (
               <NavLink
                 key={l.to}
