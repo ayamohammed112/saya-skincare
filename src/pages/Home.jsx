@@ -60,42 +60,6 @@ function ProductCard({ product, onAdd }) {
   )
 }
 
-const reviews = [
-  {
-    name: 'سارة محمود',
-    nameEn: 'Sara Mahmoud',
-    location: 'القاهرة، مصر',
-    locationEn: 'Cairo, Egypt',
-    rating: 5,
-    text: '"لم أتوقع أبداً أن منتجاً طبيعياً يمكن أن يغير بشرتي بهذه السرعة. سيروم النضارة أصبح جزءاً لا يتجزأ من يومي، النتيجة مذهلة حقاً!"',
-    textEn: '"I never expected a natural product to change my skin this fast. The Radiance Serum has become an essential part of my daily routine — the results are truly amazing!"',
-    avatar: 'س',
-    featured: false,
-  },
-  {
-    name: 'نورة إبراهيم',
-    nameEn: 'Noura Ibrahim',
-    location: 'الإسكندرية، مصر',
-    locationEn: 'Alexandria, Egypt',
-    rating: 5,
-    text: '"عطور سايا تأخذك في رحلة إلى وسط الطبيعة. الرائحة هادئة جداً وثابتة طوال اليوم. أحببت جداً كريم اللافندر الليلي، مهدئ جداً للبشرة قبل النوم."',
-    textEn: '"Saya perfumes take you on a journey through nature. The scent is so calm and lasts all day. I absolutely love the Lavender Night Cream — so soothing before bed."',
-    avatar: 'ن',
-    featured: true,
-  },
-  {
-    name: 'ليلى حسن',
-    nameEn: 'Layla Hassan',
-    location: 'الجيزة، مصر',
-    locationEn: 'Giza, Egypt',
-    rating: 4,
-    text: '"أفضل منتجات شعر جربتها على الإطلاق. زيت الأرجان خفيف جداً ولا يترك أثراً دهنياً، وشعري أصبح أكثر لمعاناً وقوة. شكراً سايا!"',
-    textEn: '"Best hair products I\'ve ever tried. The argan oil is so light with no greasy residue, and my hair is shinier and stronger. Thank you Saya!"',
-    avatar: 'ل',
-    featured: false,
-  },
-]
-
 export default function Home() {
   const { addItem } = useCart()
   const { tr, lang } = useLanguage()
@@ -168,11 +132,17 @@ export default function Home() {
           <h2 className="font-garamond text-headline-md text-primary mb-4">{tr.categories.title}</h2>
           <div className="h-1 w-20 bg-secondary-container mx-auto rounded-full" />
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter">
           {[
             { img: heroImages.skincare, ...tr.categories.skincare },
             { img: heroImages.perfumes, ...tr.categories.perfumes, overlay: 'from-secondary/80' },
             { img: heroImages.haircare, ...tr.categories.haircare, overlay: 'from-tertiary/80' },
+            {
+              img: heroImages.about,
+              name: lang === 'ar' ? 'ريفيوهات عملاءنا الكرام' : "Our Delighted Customers' Reviews",
+              sub: lang === 'ar' ? 'تجارب حقيقية من عملاءنا السعداء' : 'Real experiences from our happy customers',
+              overlay: 'from-primary/80',
+            },
           ].map((cat, i) => (
             <motion.div
               key={i}
@@ -276,51 +246,6 @@ export default function Home() {
               {tr.about.readMore}
             </button>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Reviews */}
-      <section className="py-24 bg-primary/5">
-        <div className="px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-garamond text-headline-md text-primary mb-4">{tr.reviews.title}</h2>
-            <p className="text-on-surface-variant font-jakarta text-body-sm">{tr.reviews.sub}</p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {reviews.map((r, i) => (
-              <motion.div
-                key={i}
-                className={`bg-background p-10 rounded-2xl shadow-sm border border-outline-variant/10 text-right ${r.featured ? 'scale-105 relative z-10 border-primary/20' : ''}`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
-                <div className="flex justify-end gap-1 text-secondary mb-6">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <span key={j} className={`material-symbols-outlined text-[20px] ${j < r.rating ? 'ms-filled' : ''}`}>star</span>
-                  ))}
-                </div>
-                <p className="font-jakarta text-body-md text-on-surface mb-8 italic leading-relaxed">
-                  {lang === 'ar' ? r.text : r.textEn}
-                </p>
-                <div className="flex items-center justify-end gap-4">
-                  <div className="text-right">
-                    <p className="font-jakarta text-label-md text-primary">{lang === 'ar' ? r.name : r.nameEn}</p>
-                    <p className="text-[10px] font-jakarta text-on-surface-variant">{lang === 'ar' ? r.location : r.locationEn}</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary font-bold font-garamond">
-                    {r.avatar}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
