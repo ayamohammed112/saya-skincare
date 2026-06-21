@@ -164,9 +164,9 @@ export default function Contact() {
               </h3>
               <div className="space-y-3">
                 {[
-                  { day: lang === 'ar' ? 'الأحد – الخميس' : 'Sun – Thu', hours: '9:00 – 17:00' },
+                  { day: lang === 'ar' ? 'الأحد – الخميس' : 'Sun – Thu', hours: '9:00 AM – 2:00 AM' },
                   { day: lang === 'ar' ? 'الجمعة' : 'Friday', hours: lang === 'ar' ? 'مغلق' : 'Closed' },
-                  { day: lang === 'ar' ? 'السبت' : 'Saturday', hours: '10:00 – 14:00' },
+                  { day: lang === 'ar' ? 'السبت' : 'Saturday', hours: '9:00 AM – 2:00 AM' },
                 ].map((row, i) => (
                   <div key={i} className="flex justify-between font-jakarta text-body-sm text-on-surface-variant">
                     <span>{row.hours}</span>

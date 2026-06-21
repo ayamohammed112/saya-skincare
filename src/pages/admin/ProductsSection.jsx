@@ -16,7 +16,8 @@ export default function ProductsSection() {
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
-  const [sizesInput, setSizesInput] = useState('')
+  const [sizes, setSizes] = useState([])
+  const [sizeInput, setSizeInput] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -29,22 +30,29 @@ export default function ProductsSection() {
 
   const loadSizesForProduct = async (productId) => {
     const { data } = await supabase.from('product_sizes').select('label').eq('product_id', productId).order('sort_order')
-    setSizesInput((data || []).map(s => s.label).join(', '))
+    setSizes((data || []).map(s => s.label))
   }
 
   const saveSizesFor = async (productId) => {
     await supabase.from('product_sizes').delete().eq('product_id', productId)
-    const labels = sizesInput.split(',').map(s => s.trim()).filter(Boolean)
-    if (labels.length > 0) {
+    if (sizes.length > 0) {
       await supabase.from('product_sizes').insert(
-        labels.map((label, i) => ({ product_id: productId, label, sort_order: i }))
+        sizes.map((label, i) => ({ product_id: productId, label, sort_order: i }))
       )
     }
   }
 
-  const openNew = () => { setForm(BLANK); setEditing('new'); setImageFile(null); setSizesInput('') }
-  const openEdit = (p) => { setForm({ ...BLANK, ...p }); setEditing(p.id); setImageFile(null); loadSizesForProduct(p.id) }
-  const cancel = () => { setEditing(null); setForm(BLANK); setImageFile(null); setSizesInput('') }
+  const addSize = () => {
+    const val = sizeInput.trim()
+    if (val && !sizes.includes(val)) setSizes(prev => [...prev, val])
+    setSizeInput('')
+  }
+
+  const removeSize = (i) => setSizes(prev => prev.filter((_, j) => j !== i))
+
+  const openNew = () => { setForm(BLANK); setEditing('new'); setImageFile(null); setSizes([]); setSizeInput('') }
+  const openEdit = (p) => { setForm({ ...BLANK, ...p }); setEditing(p.id); setImageFile(null); loadSizesForProduct(p.id); setSizeInput('') }
+  const cancel = () => { setEditing(null); setForm(BLANK); setImageFile(null); setSizes([]); setSizeInput('') }
 
   const uploadImage = async () => {
     if (!imageFile) return form.image_url || null
@@ -145,14 +153,34 @@ export default function ProductsSection() {
 
           {/* Sizes */}
           <div className="col-span-2">
-            <label className="text-gray-400 text-xs font-semibold block mb-1">الأحجام | Sizes (e.g. 50ml, 100ml, 200ml)</label>
-            <input
-              value={sizesInput}
-              onChange={e => setSizesInput(e.target.value)}
-              placeholder="50ml, 100ml, 200ml"
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-all"
-            />
-            <p className="text-gray-600 text-xs mt-1">ادخلي الأحجام مفصولة بفاصلة | Enter sizes comma-separated</p>
+            <label className="text-gray-400 text-xs font-semibold block mb-2">الأحجام بالمل | Sizes in ML</label>
+            {sizes.length > 0 && (
+              <div className="flex gap-2 flex-wrap mb-3">
+                {sizes.map((s, i) => (
+                  <span key={i} className="flex items-center gap-1.5 bg-emerald-900/50 text-emerald-300 border border-emerald-700/50 px-3 py-1 rounded-full text-xs font-medium">
+                    {s}
+                    <button type="button" onClick={() => removeSize(i)} className="text-emerald-500 hover:text-white leading-none text-base">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                value={sizeInput}
+                onChange={e => setSizeInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addSize() } }}
+                placeholder="e.g. 50ml"
+                className="flex-1 bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-all"
+              />
+              <button
+                type="button"
+                onClick={addSize}
+                className="bg-emerald-800 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              >
+                + إضافة
+              </button>
+            </div>
+            <p className="text-gray-600 text-xs mt-1">اضغطي Enter أو , لإضافة | Press Enter or , to add a size</p>
           </div>
 
           {/* Image upload */}
