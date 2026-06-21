@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
 import { heroImages } from '../data/products'
@@ -13,7 +12,6 @@ const fadeUp = (delay = 0) => ({
 export default function About() {
   const { tr } = useLanguage()
   const a = tr.about
-  const navigate = useNavigate()
 
   return (
     <main className="pt-20 pb-24">
@@ -80,63 +78,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Ingredients */}
-      <section className="py-24 px-margin-mobile md:px-margin-desktop max-w-site mx-auto">
-        <div className="flex flex-col md:flex-row gap-16 items-center">
-          <motion.div {...fadeUp(0.1)} className="w-full md:w-1/2">
-            <div className="grid grid-cols-2 gap-4">
-              {[heroImages.ingredient1, heroImages.ingredient2, heroImages.ingredient3, heroImages.ingredient4].map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt="مكون طبيعي"
-                  className={`rounded-lg h-64 w-full object-cover ${i % 2 === 1 ? 'mt-8' : ''}`}
-                />
-              ))}
-            </div>
-          </motion.div>
-          <motion.div {...fadeUp(0.2)} className="w-full md:w-1/2 text-right">
-            <span className="font-jakarta text-secondary text-label-md tracking-widest block mb-4">{a.ingredientsLabel}</span>
-            <h2 className="font-garamond text-headline-md text-primary mb-8">{a.ingredientsTitle}</h2>
-            <p className="font-jakarta text-body-md text-on-surface-variant mb-6 leading-loose">{a.ingredientsBody}</p>
-            <ul className="space-y-4 mb-10">
-              {a.ingredients.map((ing, i) => (
-                <li key={i} className="flex items-center gap-4 flex-row-reverse">
-                  <span className="material-symbols-outlined text-primary ms-filled">check_circle</span>
-                  <span className="font-jakarta text-body-md">{ing}</span>
-                </li>
-              ))}
-            </ul>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/shop')}
-              className="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-3 rounded-full hover:opacity-90 transition-opacity font-jakarta text-body-md"
-            >
-              <span>{a.shopCta}</span>
-              <span className="material-symbols-outlined">arrow_left</span>
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Founder quote */}
-      <section className="bg-secondary-fixed/10 py-24">
-        <motion.div {...fadeUp()} className="max-w-3xl mx-auto text-center px-6">
-          <div className="mb-8">
-            <img
-              src={heroImages.founder}
-              alt="المؤسسة"
-              className="h-20 w-20 rounded-full mx-auto border-4 border-white shadow-lg object-cover"
-            />
-          </div>
-          <h2 className="font-garamond text-headline-sm text-primary italic mb-6">{a.founderQuote}</h2>
-          <div className="flex flex-col items-center gap-2">
-            <span className="font-garamond text-headline-md text-secondary">{a.founderName}</span>
-            <span className="font-jakarta text-label-md text-on-surface-variant tracking-widest">{a.founderRole}</span>
-          </div>
-        </motion.div>
-      </section>
     </main>
   )
 }
