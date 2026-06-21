@@ -30,7 +30,7 @@ export default function Shop() {
   const searchQuery = searchParams.get('q') || ''
 
   const [selectedCat, setSelectedCat] = useState('all')
-  const [priceMax, setPriceMax] = useState(500)
+  const [priceMax, setPriceMax] = useState(700)
   const [sortBy, setSortBy] = useState(0)
   const [page, setPage] = useState(1)
 
@@ -54,7 +54,7 @@ export default function Shop() {
 
   const resetFilters = () => {
     setSelectedCat('all')
-    setPriceMax(500)
+    setPriceMax(700)
     setSortBy(0)
     setPage(1)
   }
@@ -107,7 +107,7 @@ export default function Shop() {
             <input
               type="range"
               min="0"
-              max="500"
+              max="700"
               step="10"
               value={priceMax}
               onChange={e => setPriceMax(+e.target.value)}
@@ -207,12 +207,12 @@ export default function Shop() {
                 exit={{ opacity: 0 }}
                 className="text-center py-24 col-span-3"
               >
-                <span className="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4 block">search_off</span>
+                <span className="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4 block">inventory_2</span>
                 <h3 className="font-garamond text-headline-sm text-on-surface-variant mb-3">
-                  {lang === 'ar' ? 'لا توجد منتجات مطابقة' : 'No products found'}
+                  {lang === 'ar' ? 'غير متوفر' : 'Not Available'}
                 </h3>
                 <p className="font-jakarta text-body-md text-on-surface-variant/70 mb-6">
-                  {lang === 'ar' ? 'جربي تعديل الفلاتر أو البحث بكلمة أخرى' : 'Try adjusting your filters or search with a different term'}
+                  {lang === 'ar' ? 'لا توجد منتجات ضمن النطاق المحدد. جربي تعديل الفلاتر.' : 'No products match the selected range. Try adjusting your filters.'}
                 </p>
                 <button
                   onClick={resetFilters}

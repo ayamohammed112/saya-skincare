@@ -16,6 +16,8 @@ import Login from './pages/Login'
 import Account from './pages/Account'
 import SkinQuiz from './pages/SkinQuiz'
 import Bundles from './pages/Bundles'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import Terms from './pages/Terms'
 import AdminBundles from './pages/AdminBundles'
 import AdminPanel from './pages/AdminPanel'
 import { useCart } from './context/CartContext'
@@ -100,6 +102,8 @@ export default function App() {
           <Route path="/account" element={<PageTransition><Account /></PageTransition>} />
           <Route path="/quiz" element={<PageTransition><SkinQuiz /></PageTransition>} />
           <Route path="/bundles" element={<PageTransition><Bundles /></PageTransition>} />
+          <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+          <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
         </Routes>
       </AnimatePresence>
       <Footer />

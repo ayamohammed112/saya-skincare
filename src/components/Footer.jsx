@@ -105,8 +105,8 @@ export default function Footer() {
       <div className="mt-16 pt-8 border-t border-outline-variant/20 px-margin-mobile md:px-margin-desktop max-w-site mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-label-md font-jakarta text-on-surface-variant">{f.copyright}</p>
         <div className="flex gap-6">
-          <span className="text-label-md font-jakarta text-on-surface-variant cursor-pointer hover:text-primary transition-colors">{f.privacy}</span>
-          <span className="text-label-md font-jakarta text-on-surface-variant cursor-pointer hover:text-primary transition-colors">{f.terms}</span>
+          <Link to="/privacy" className="text-label-md font-jakarta text-on-surface-variant hover:text-primary transition-colors">{f.privacy}</Link>
+          <Link to="/terms" className="text-label-md font-jakarta text-on-surface-variant hover:text-primary transition-colors">{f.terms}</Link>
         </div>
       </div>
     </footer>
