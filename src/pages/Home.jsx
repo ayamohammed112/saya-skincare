@@ -97,7 +97,7 @@ export default function Home() {
           style={{
             position: 'absolute',
             top: 0,
-            left: 0,
+            left: 100,
             width: '200%',
             height: '100%',
             objectFit: 'cover',
