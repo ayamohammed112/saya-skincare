@@ -80,7 +80,7 @@ export default function Home() {
       <style>{`
         @media (max-width: 768px) {
           .hero-video {
-            object-position: 90% center;
+            object-position: 65% center;
           }
         }
       `}</style>
@@ -101,7 +101,7 @@ export default function Home() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: '100% center',
+            objectPosition: '60% center',
             zIndex: 0,
           }}
         />
