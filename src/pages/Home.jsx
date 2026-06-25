@@ -80,7 +80,14 @@ export default function Home() {
       {/* Hero */}
       <section className="relative h-[870px] w-full overflow-hidden flex items-center">
         <div className="absolute inset-0 z-0">
-          <img src={heroImages.hero} alt="سايا" className="w-full h-full object-cover" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            src="https://assets.mixkit.co/videos/1168/1168-720.mp4"
+          />
           <div className="absolute inset-0 bg-gradient-to-l from-background/70 via-background/20 to-transparent" />
         </div>
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
