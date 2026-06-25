@@ -216,10 +216,6 @@ export default function Home() {
           >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-tertiary-fixed-dim/20 rounded-full blur-3xl z-0" />
             <img src={heroImages.about} alt="عن سايا" className="relative z-10 w-full aspect-[3/4] object-cover rounded-2xl shadow-2xl" />
-            <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-xl shadow-xl z-20 hidden md:block border border-outline-variant/10">
-              <p className="font-garamond text-headline-sm text-primary mb-2">{tr.about.years}</p>
-              <p className="text-on-surface-variant font-jakarta text-body-sm">{tr.about.yearsLabel}</p>
-            </div>
           </motion.div>
           <motion.div
             className="text-right"
