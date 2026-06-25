@@ -98,10 +98,10 @@ export default function Home() {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '400%',
+            width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: '60% center',
+            objectPosition: '200% center',
             zIndex: 0,
           }}
         />
