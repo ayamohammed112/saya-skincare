@@ -85,7 +85,7 @@ export default function Home() {
           muted
           playsInline
           src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389398/saya_video_1_x5efub.mp4"
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', zIndex: 0 }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 235, 242, 0.6)', zIndex: 1 }} />
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
