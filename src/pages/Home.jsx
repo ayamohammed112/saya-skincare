@@ -98,7 +98,7 @@ export default function Home() {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '130%',
+            width: '200%',
             height: '100%',
             objectFit: 'cover',
             objectPosition: '60% center',
