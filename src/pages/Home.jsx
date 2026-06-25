@@ -101,7 +101,7 @@ export default function Home() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: '10% center',
+            objectPosition: '100% center',
             zIndex: 0,
           }}
         />
