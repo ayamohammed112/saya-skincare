@@ -77,6 +77,13 @@ export default function Home() {
 
   return (
     <main className="pt-20 pb-20 md:pb-0">
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-video {
+            object-position: 65% center;
+          }
+        }
+      `}</style>
       {/* Hero */}
       <section className="relative h-[870px] w-full overflow-hidden flex items-center">
         {/* position-fix-v3 */}
@@ -85,6 +92,7 @@ export default function Home() {
           loop
           muted
           playsInline
+          className="hero-video"
           src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
           style={{
             position: 'absolute',
