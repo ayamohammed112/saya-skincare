@@ -84,11 +84,11 @@ export default function Home() {
           loop
           muted
           playsInline
-          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389398/saya_video_1_x5efub.mp4"
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', zIndex: 0 }}
+          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', zIndex: 0 }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 235, 242, 0.6)', zIndex: 1 }} />
-        <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(255, 235, 242, 0.55)', zIndex: 1 }} />
+        <div className="relative z-[2] px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
           <motion.div
             className="max-w-2xl text-right"
             variants={stagger}
