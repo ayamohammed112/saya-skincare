@@ -4,17 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary — Hot Pink #E8006F
-        primary:                      '#E8006F',
+        // Primary — Deep Rose #C2185B
+        primary:                      '#C2185B',
         'on-primary':                 '#FFFFFF',
         'primary-fixed':              '#FFB3D1',
-        'primary-fixed-dim':          '#F5678B',
-        'inverse-primary':            '#FF4DA6',
+        'primary-fixed-dim':          '#E05585',
+        'inverse-primary':            '#F06090',
         'on-primary-fixed':           '#3C0022',
         'on-primary-fixed-variant':   '#7A0048',
-        'primary-container':          '#B8005A',
+        'primary-container':          '#880E4F',
         'on-primary-container':       '#FFE4F0',
-        'surface-tint':               '#E8006F',
+        'surface-tint':               '#C2185B',
 
         // Secondary — Warm Gold
         secondary:                    '#B87C2A',
@@ -36,24 +36,24 @@ export default {
         'on-tertiary-fixed':         '#4D0028',
         'on-tertiary-fixed-variant': '#8C0050',
 
-        // Neutral surfaces — White / Soft Blush
-        background:                  '#FFF8FC',
-        surface:                     '#FFF8FC',
-        'surface-bright':            '#FFFFFF',
-        'surface-dim':               '#F5D0E0',
-        'surface-variant':           '#FCE8F2',
-        'surface-container':         '#FFF0F7',
-        'surface-container-low':     '#FFF5FA',
-        'surface-container-high':    '#FFE8F2',
-        'surface-container-highest': '#FFD8EA',
-        'surface-container-lowest':  '#FFFFFF',
+        // Neutral surfaces — Unified Warm Blush
+        background:                  '#FDF0F4',
+        surface:                     '#FDF0F4',
+        'surface-bright':            '#FDF0F4',
+        'surface-dim':               '#EDD0DA',
+        'surface-variant':           '#F5DDE7',
+        'surface-container':         '#F5E0E8',
+        'surface-container-low':     '#F9EBF0',
+        'surface-container-high':    '#EDD0DA',
+        'surface-container-highest': '#E5C8D4',
+        'surface-container-lowest':  '#FDF0F4',
 
         // On-surface / text
-        'on-surface':         '#1C0D14',
-        'on-surface-variant': '#4D2E3A',
-        'on-background':      '#1C0D14',
-        'inverse-surface':    '#1C0D14',
-        'inverse-on-surface': '#FFF5FA',
+        'on-surface':         '#3D1A24',
+        'on-surface-variant': '#5A3040',
+        'on-background':      '#3D1A24',
+        'inverse-surface':    '#3D1A24',
+        'inverse-on-surface': '#FDF0F4',
 
         // Outline
         outline:          '#C090A8',

@@ -76,19 +76,21 @@ export default function Home() {
   }
 
   return (
-    <main className="pt-20 pb-20 md:pb-0">
+    <>
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        src="https://cdn.pixabay.com/video/2022/10/11/134819-759530840_large.mp4"
+        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', zIndex: -2 }}
+      />
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(255, 240, 245, 0.75)', zIndex: -1 }} />
+      <main className="pt-20 pb-20 md:pb-0">
       {/* Hero */}
-      <section className="relative h-[870px] w-full overflow-hidden flex items-center">
+      <section className="relative h-[870px] w-full flex items-center">
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            src="https://assets.mixkit.co/videos/1168/1168-720.mp4"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-background/70 via-background/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-l from-background/60 via-background/10 to-transparent" />
         </div>
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
           <motion.div
@@ -344,5 +346,6 @@ export default function Home() {
         </motion.div>
       </section>
     </main>
+    </>
   )
 }
