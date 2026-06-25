@@ -76,22 +76,18 @@ export default function Home() {
   }
 
   return (
-    <>
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        src="https://cdn.pixabay.com/video/2022/10/11/134819-759530840_large.mp4"
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', zIndex: -2 }}
-      />
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(255, 240, 245, 0.75)', zIndex: -1 }} />
-      <main className="pt-20 pb-20 md:pb-0">
+    <main className="pt-20 pb-20 md:pb-0">
       {/* Hero */}
-      <section className="relative h-[870px] w-full flex items-center">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-l from-background/60 via-background/10 to-transparent" />
-        </div>
+      <section className="relative h-[870px] w-full overflow-hidden flex items-center">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389398/saya_video_1_x5efub.mp4"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 235, 242, 0.6)', zIndex: 1 }} />
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full max-w-site mx-auto">
           <motion.div
             className="max-w-2xl text-right"
@@ -346,6 +342,5 @@ export default function Home() {
         </motion.div>
       </section>
     </main>
-    </>
   )
 }
