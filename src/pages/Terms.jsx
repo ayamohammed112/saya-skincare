@@ -53,22 +53,10 @@ const sections = [
     contentEn: 'Your use of our website is also governed by our Privacy Policy, which forms an integral part of these Terms and Conditions. The Privacy Policy governs how your personal data is collected, used, and protected.',
   },
   {
-    titleAr: 'تحديد المسؤولية',
-    titleEn: 'Limitation of Liability',
-    contentAr: 'لا تتحمل سايا أي مسؤولية عن أي أضرار غير مباشرة أو عرضية أو تبعية أو خاصة قد تنشأ عن استخدام موقعنا أو منتجاتنا أو خدماتنا. في جميع الأحوال، تقتصر مسؤوليتنا القصوى على قيمة الطلب المعني فقط.',
-    contentEn: 'SAYA shall not be liable for any indirect, incidental, consequential, or special damages arising from the use of our website, products, or services. In all cases, our maximum liability is limited solely to the value of the relevant order.',
-  },
-  {
     titleAr: 'التعديلات على الشروط',
     titleEn: 'Amendments to Terms',
     contentAr: 'تحتفظ سايا بالحق في تعديل هذه الشروط والأحكام في أي وقت ودون إشعار مسبق. يُعدّ استمرارك في استخدام الموقع أو الشراء منه بعد نشر أي تعديلات موافقةً ضمنيةً لا لبس فيها على الشروط المعدّلة.',
     contentEn: 'SAYA reserves the right to amend these Terms and Conditions at any time without prior notice. Continued use of the website or purchases made following the posting of any amendments shall constitute unambiguous implicit acceptance of the revised Terms.',
-  },
-  {
-    titleAr: 'القانون الحاكم والاختصاص القضائي',
-    titleEn: 'Governing Law & Jurisdiction',
-    contentAr: 'تخضع هذه الشروط والأحكام وتُفسَّر وفقًا لأحكام قوانين جمهورية مصر العربية. تختص المحاكم المصرية المختصة وحدها بالفصل في أي نزاع ينشأ عن هذه الشروط أو يتعلق بها أو بتفسيرها أو تطبيقها.',
-    contentEn: 'These Terms and Conditions shall be governed by and construed exclusively in accordance with the laws of the Arab Republic of Egypt. The competent Egyptian courts shall have sole and exclusive jurisdiction to resolve any dispute arising from, relating to, or concerning the interpretation or application of these Terms.',
   },
 ]
 
