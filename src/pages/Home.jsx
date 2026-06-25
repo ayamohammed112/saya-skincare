@@ -93,7 +93,7 @@ export default function Home() {
           muted
           playsInline
           className="hero-video"
-          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
+          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782390378/saya_video_4_a20yp1.mp4"
           style={{
             position: 'absolute',
             top: 0,
