@@ -18,7 +18,43 @@ export default function About() {
       {/* Hero */}
       <section className="relative h-[819px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImages.aboutHero} alt="سايا" className="w-full h-full object-cover" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="hidden md:block"
+            src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389770/103254-662114533_medium_qyantc.mp4"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              zIndex: 0,
+            }}
+          />
+          {/* mobile video to be added */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="block md:hidden"
+            src=""
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              zIndex: 0,
+            }}
+          />
           <div className="absolute inset-0 bg-primary/20 backdrop-brightness-75" />
         </div>
         <motion.div
