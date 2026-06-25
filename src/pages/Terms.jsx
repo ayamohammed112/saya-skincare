@@ -16,12 +16,6 @@ const sections = [
     contentEn: 'By accessing, browsing, or completing any purchase on our website, you acknowledge that you have read, understood, and agree to be fully bound by these Terms and Conditions. If you do not agree to any provision herein, please immediately discontinue use of the website.',
   },
   {
-    titleAr: 'المنتجات والأوصاف',
-    titleEn: 'Products & Descriptions',
-    contentAr: 'نسعى جاهدين لعرض منتجاتنا بدقة تامة من حيث الصور والأوصاف والمكونات. قد تختلف الألوان والملمس قليلًا نظرًا لاختلاف إعدادات الشاشات. نحتفظ بحق تعديل المنتجات أو وقف بيعها في أي وقت دون إشعار مسبق. تخضع جميع المنتجات للتوافر، وقد يُلغى أي طلب في حالة نفاد المخزون مع إخطار العميل فورًا.',
-    contentEn: 'We strive to display our products with complete accuracy in terms of images, descriptions, and ingredients. Colors and textures may vary slightly due to differences in screen settings. We reserve the right to modify or discontinue products at any time without prior notice. All products are subject to availability, and any order may be cancelled in the event of stock depletion, with immediate customer notification.',
-  },
-  {
     titleAr: 'الطلبات والدفع',
     titleEn: 'Orders & Payment',
     contentAr: 'تُعتبر الطلبات مؤكدة فور إتمام معالجة الدفع بنجاح. نقبل الدفع نقدًا عند الاستلام، والتحويل الإلكتروني عبر فودافون كاش وإنستا باي والتحويل البنكي. نحتفظ بالحق في رفض أي طلب أو إلغائه في حالات الاشتباه بالاحتيال أو عدم صحة بيانات الدفع أو نفاد المخزون، على أن يُخطر العميل فورًا.',
@@ -30,33 +24,20 @@ const sections = [
   {
     titleAr: 'التوصيل والشحن',
     titleEn: 'Delivery & Shipping',
-    contentAr: 'تتراوح مدة التوصيل المقدرة بين 3 إلى 7 أيام عمل بحسب المحافظة. تُحسب رسوم الشحن وتُعرض بوضوح أثناء إتمام الطلب. في حالات التأخير الناجمة عن ظروف خارجة عن إرادتنا — كالكوارث الطبيعية أو الإضرابات أو القرارات الحكومية — لا تتحمل سايا أي مسؤولية قانونية، غير أننا سنبذل قصارى جهدنا للتواصل الفوري مع العميل وإيجاد الحل الأمثل.',
-    contentEn: 'Estimated delivery time is 3 to 7 business days depending on your governorate. Shipping fees are calculated and clearly displayed during checkout. In cases of delay caused by circumstances beyond our control — including natural disasters, strikes, or governmental decisions — SAYA bears no legal liability; however, we will make every effort to immediately communicate with the customer and find the optimal resolution.',
+    contentAr: 'التوصيل للقاهرة والجيزة من 3 إلى 5 أيام والمحافظات من أسبوع إلى 10 أيام. تُحسب رسوم الشحن وتُعرض بوضوح أثناء إتمام الطلب. في حالات التأخير الناجمة عن ظروف خارجة عن إرادتنا — كالكوارث الطبيعية أو الإضرابات أو القرارات الحكومية — سنبذل قصارى جهدنا للتواصل الفوري مع العميل وإيجاد الحل الأمثل.',
+    contentEn: 'Delivery to Cairo and Giza takes 3 to 5 days, and to other governorates from one week to 10 days. Shipping fees are calculated and clearly displayed during checkout. In cases of delay caused by circumstances beyond our control — including natural disasters, strikes, or governmental decisions — we will make every effort to immediately communicate with the customer and find the optimal resolution.',
   },
   {
     titleAr: 'سياسة الإرجاع والاستبدال والمنتجات التالفة',
     titleEn: 'Returns, Exchanges & Damaged Items Policy',
-    contentAr: 'هذا البند ملزم قانونيًا — يُرجى قراءته بعناية تامة قبل استلام طلبك.\n\nعند استلامك للطلب، يحق لك خلال نافذة زمنية لا تتجاوز عشر (١٠) دقائق من لحظة التسليم الفعلي، فحص جميع المنتجات والإبلاغ عن أي منتج تالف أو معيب أو مغاير لما تم طلبه.\n\nيجب أن يكون الإبلاغ خلال هذه المدة مصحوبًا بصور فوتوغرافية واضحة تُرسل فورًا عبر واتساب على الرقم: 3151 290 110 20+\n\nبعد انقضاء عشر (١٠) دقائق من لحظة الاستلام الفعلي، لن يُقبل أي طلب للاسترداد أو الإرجاع أو الاستبدال، تحت أي سبب أو ظرف كان، وذلك دون أي استثناء مهما كانت الأسباب.\n\nباستلامك للطلب، تُقرّ صراحةً وتوافق على أن المنتجات وصلت في حالة سليمة ومُرضية تمامًا.',
-    contentEn: 'This clause is legally binding — please read it carefully and in full before accepting delivery of your order.\n\nUpon receiving your order, you have a window of no more than ten (10) minutes from the moment of actual delivery to inspect all items and report any damaged, defective, or incorrect product.\n\nAll reports within this window must be accompanied by clear photographic evidence sent immediately via WhatsApp to: +20 110 290 3151\n\nAfter ten (10) minutes have elapsed from the moment of actual delivery, no refund, return, or exchange request will be accepted for any reason or under any circumstances whatsoever, without exception, regardless of the nature of the claim.\n\nBy accepting delivery of your order, you expressly acknowledge and agree that all products were received in fully satisfactory condition.',
-    highlight: true,
-  },
-  {
-    titleAr: 'الملكية الفكرية',
-    titleEn: 'Intellectual Property',
-    contentAr: 'جميع المحتويات المنشورة على الموقع — بما تشمل النصوص والصور والشعارات والعلامات التجارية والتصاميم — هي ملكية حصرية لسايا للعناية الطبيعية ومحمية بموجب قوانين حقوق الملكية الفكرية السارية. يُحظر إعادة إنتاجها أو توزيعها أو تعديلها أو استخدامها تجاريًا دون الحصول على إذن كتابي صريح مسبق.',
-    contentEn: 'All content published on the website — including texts, images, logos, trademarks, and designs — is the exclusive property of SAYA Natural Skincare and is protected under applicable intellectual property laws. Reproduction, distribution, modification, or commercial use without prior explicit written permission is strictly prohibited.',
+    contentAr: 'عند استلامك للطلب، يحق لك خلال نافذة زمنية لا تتجاوز عشر (١٠) دقائق من لحظة التسليم الفعلي، فحص جميع المنتجات والإبلاغ عن أي منتج تالف أو معيب أو مغاير لما تم طلبه.\n\nيجب أن يكون الإبلاغ خلال هذه المدة مصحوبًا بصور فوتوغرافية واضحة تُرسل فورًا عبر واتساب على الرقم: +20 110 290 3151\n\nبعد انقضاء عشر (١٠) دقائق من لحظة الاستلام الفعلي، لن يُقبل أي طلب للاسترداد أو الإرجاع أو الاستبدال، تحت أي سبب أو ظرف كان، وذلك دون أي استثناء مهما كانت الأسباب.\n\nباستلامك للطلب، تُقرّ صراحةً وتوافق على أن المنتجات وصلت في حالة سليمة ومُرضية تمامًا.',
+    contentEn: 'Upon receiving your order, you have a window of no more than ten (10) minutes from the moment of actual delivery to inspect all items and report any damaged, defective, or incorrect product.\n\nAll reports within this window must be accompanied by clear photographic evidence sent immediately via WhatsApp to: +20 110 290 3151\n\nAfter ten (10) minutes have elapsed from the moment of actual delivery, no refund, return, or exchange request will be accepted for any reason or under any circumstances whatsoever, without exception, regardless of the nature of the claim.\n\nBy accepting delivery of your order, you expressly acknowledge and agree that all products were received in fully satisfactory condition.',
   },
   {
     titleAr: 'الخصوصية',
     titleEn: 'Privacy',
     contentAr: 'يخضع استخدامك للموقع أيضًا لسياسة الخصوصية الخاصة بنا، والتي تُعدّ جزءًا لا يتجزأ من هذه الشروط والأحكام. تحكم سياسة الخصوصية طريقة جمع بياناتك الشخصية واستخدامها وحمايتها.',
     contentEn: 'Your use of our website is also governed by our Privacy Policy, which forms an integral part of these Terms and Conditions. The Privacy Policy governs how your personal data is collected, used, and protected.',
-  },
-  {
-    titleAr: 'التعديلات على الشروط',
-    titleEn: 'Amendments to Terms',
-    contentAr: 'تحتفظ سايا بالحق في تعديل هذه الشروط والأحكام في أي وقت ودون إشعار مسبق. يُعدّ استمرارك في استخدام الموقع أو الشراء منه بعد نشر أي تعديلات موافقةً ضمنيةً لا لبس فيها على الشروط المعدّلة.',
-    contentEn: 'SAYA reserves the right to amend these Terms and Conditions at any time without prior notice. Continued use of the website or purchases made following the posting of any amendments shall constitute unambiguous implicit acceptance of the revised Terms.',
   },
 ]
 
