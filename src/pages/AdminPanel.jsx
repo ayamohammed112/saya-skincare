@@ -9,7 +9,7 @@ import DiscountCodesSection from './admin/DiscountCodesSection'
 import AnalyticsSection from './admin/AnalyticsSection'
 import SkinQuizSection from './admin/SkinQuizSection'
 
-const ADMIN_PASSWORD = 'saya112'
+const ADMIN_PASSWORD = 'Aya321'
 const AUTH_KEY = 'saya_admin_auth'
 
 const NAV = [

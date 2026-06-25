@@ -92,7 +92,25 @@ export default function Home() {
           loop
           muted
           playsInline
-          className="hero-video"
+          className="hero-video hidden md:block"
+          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center center',
+            zIndex: 0,
+          }}
+        />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="hero-video block md:hidden"
           src="https://res.cloudinary.com/degdyksdi/video/upload/v1782401055/7305133-uhd_2160_4096_25fps_v16p1b.mp4"
           style={{
             position: 'absolute',
@@ -101,7 +119,7 @@ export default function Home() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: '100% center',
+            objectPosition: 'center center',
             zIndex: 0,
           }}
         />
