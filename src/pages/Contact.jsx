@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../context/LanguageContext'
-import { heroImages } from '../data/products'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -23,26 +22,15 @@ export default function Contact() {
   return (
     <main className="pt-20 pb-24">
       {/* Hero */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              zIndex: 0,
-            }}
-            src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
-          />
-          <div className="absolute inset-0" style={{ background: 'rgba(255, 235, 242, 0.6)', zIndex: 1 }} />
-        </div>
+      <section
+        className="relative h-96 flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: 'url(https://images.pexels.com/photos/3762453/pexels-photo-3762453.jpeg?auto=compress&cs=tinysrgb&w=1800)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0" style={{ background: 'rgba(255, 235, 242, 0.6)' }} />
         <motion.div
           className="relative z-10 text-center max-w-2xl px-6"
           initial={{ opacity: 0, y: 30 }}
