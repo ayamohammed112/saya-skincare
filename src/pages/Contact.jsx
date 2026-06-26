@@ -22,17 +22,28 @@ export default function Contact() {
   return (
     <main className="pt-20 pb-24">
       {/* Hero */}
-      <section
-        className="relative h-96 flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: 'url(https://images.pexels.com/photos/3762453/pexels-photo-3762453.jpeg?auto=compress&cs=tinysrgb&w=1800)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0" style={{ background: 'rgba(255, 235, 242, 0.6)' }} />
+      <section className="relative h-96 flex items-center justify-center overflow-hidden">
+        {/* Mobile background */}
+        <div
+          className="absolute inset-0 block md:hidden"
+          style={{
+            backgroundImage: 'url(https://images.pexels.com/photos/3762879/pexels-photo-3762879.jpeg?auto=compress&cs=tinysrgb&w=1800)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Desktop background */}
+        <div
+          className="absolute inset-0 hidden md:block"
+          style={{
+            backgroundImage: 'url(https://images.pexels.com/photos/4041392/pexels-photo-4041392.jpeg?auto=compress&cs=tinysrgb&w=1800)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: 'rgba(255, 235, 242, 0.55)', zIndex: 1 }} />
         <motion.div
-          className="relative z-10 text-center max-w-2xl px-6"
+          className="relative z-20 text-center max-w-2xl px-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9 }}
