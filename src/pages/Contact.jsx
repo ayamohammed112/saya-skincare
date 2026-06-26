@@ -25,8 +25,23 @@ export default function Contact() {
       {/* Hero */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImages.aboutHero} alt="تواصل" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-primary/30 backdrop-brightness-75" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: 0,
+            }}
+            src="https://res.cloudinary.com/degdyksdi/video/upload/v1782389654/302132_medium_fyf1mw.mp4"
+          />
+          <div className="absolute inset-0" style={{ background: 'rgba(255, 235, 242, 0.6)', zIndex: 1 }} />
         </div>
         <motion.div
           className="relative z-10 text-center max-w-2xl px-6"
