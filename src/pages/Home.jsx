@@ -111,7 +111,7 @@ export default function Home() {
           muted
           playsInline
           className="hero-video block md:hidden"
-          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782401055/7305133-uhd_2160_4096_25fps_v16p1b.mp4"
+          src="https://res.cloudinary.com/degdyksdi/video/upload/v1782494970/4612174-uhd_2160_4096_25fps_e3p10y.mp4"
           style={{
             position: 'absolute',
             top: 0,
