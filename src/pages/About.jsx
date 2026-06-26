@@ -43,7 +43,7 @@ export default function About() {
             muted
             playsInline
             className="block md:hidden"
-            src=""
+            src="https://res.cloudinary.com/degdyksdi/video/upload/v1782403983/6925816-hd_1080_1920_25fps_vcnh9z.mp4"
             style={{
               position: 'absolute',
               top: 0,
