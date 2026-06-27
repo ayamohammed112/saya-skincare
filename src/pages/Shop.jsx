@@ -3,8 +3,38 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
-import { products } from '../data/products'
+import { supabase } from '../lib/supabase'
 import { bundles, getBundleProducts } from '../data/bundles'
+
+const CATEGORY_KEY = {
+  'العناية بالبشرة': 'skincare',
+  'العطور': 'perfumes',
+  'منتجات الشعر': 'haircare',
+}
+
+const CATEGORY_LABEL = {
+  'العناية بالبشرة': 'عناية بالبشرة',
+  'العطور': 'عطور',
+  'منتجات الشعر': 'عناية بالشعر',
+}
+
+function normalizeProduct(row) {
+  return {
+    id: row.id,
+    name: row.name || row.name_ar || '',
+    nameEn: row.name_en || '',
+    category: CATEGORY_KEY[row.category] || row.category || 'skincare',
+    categoryLabel: CATEGORY_LABEL[row.category] || row.category || '',
+    price: row.price,
+    originalPrice: row.original_price || null,
+    image: row.image_url || '',
+    rating: 0,
+    reviews: 0,
+    badge: null,
+    badgeEn: null,
+    badgeColor: null,
+  }
+}
 
 const ITEMS_PER_PAGE = 9
 
@@ -29,10 +59,24 @@ export default function Shop() {
   const [searchParams] = useSearchParams()
   const searchQuery = searchParams.get('q') || ''
 
+  const [products, setProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
   const [selectedCat, setSelectedCat] = useState('all')
   const [priceMax, setPriceMax] = useState(700)
   const [sortBy, setSortBy] = useState(0)
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    supabase
+      .from('products')
+      .select('id, name, name_ar, name_en, price, original_price, category, image_url, in_stock')
+      .eq('in_stock', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setProducts((data || []).map(normalizeProduct))
+        setLoadingProducts(false)
+      })
+  }, [])
 
   // Reset page when any filter changes
   useEffect(() => { setPage(1) }, [selectedCat, priceMax, sortBy, searchQuery])
@@ -78,7 +122,13 @@ export default function Shop() {
         )}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-gutter">
+      {loadingProducts && (
+        <div className="flex justify-center items-center py-24">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {!loadingProducts && <div className="grid grid-cols-1 lg:grid-cols-4 gap-gutter">
         {/* Sidebar */}
         <aside className="lg:col-span-1 space-y-10">
           {/* Categories */}
@@ -314,7 +364,7 @@ export default function Shop() {
             </div>
           )}
         </div>
-      </div>
+      </div>}
     </main>
   )
 }
