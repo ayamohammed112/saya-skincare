@@ -1,253 +1,247 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { useLanguage } from '../context/LanguageContext'
-import { products } from '../data/products'
-import { bundles as defaultBundles } from '../data/bundles'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
-function loadBundles() {
-  try {
-    const stored = localStorage.getItem('saya_custom_bundles')
-    return stored ? JSON.parse(stored) : null
-  } catch { return null }
+const CLOUD_NAME = 'dtkbxoqph'
+const CLOUD_PRESET = 'aceit_unsigned'
+
+async function compressImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      const maxW = 800
+      const scale = img.width > maxW ? maxW / img.width : 1
+      const w = Math.round(img.width * scale)
+      const h = Math.round(img.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      URL.revokeObjectURL(url)
+      canvas.toBlob(resolve, 'image/jpeg', 0.75)
+    }
+    img.src = url
+  })
 }
 
-function saveBundles(b) {
-  localStorage.setItem('saya_custom_bundles', JSON.stringify(b))
+async function uploadToCloudinary(file) {
+  const blob = await compressImage(file)
+  const fd = new FormData()
+  fd.append('file', blob, 'bundle.jpg')
+  fd.append('upload_preset', CLOUD_PRESET)
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: fd,
+  })
+  const json = await res.json()
+  if (!json.secure_url) throw new Error('Upload failed')
+  return json.secure_url
 }
-
-const blank = { name: '', nameEn: '', description: '', descriptionEn: '', productIds: [], bundlePrice: '', originalTotal: '' }
 
 export default function AdminBundles() {
-  const { lang } = useLanguage()
-  const [bundles, setBundles] = useState(() => loadBundles() || defaultBundles)
-  const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState(blank)
-  const [saved, setSaved] = useState(false)
+  const [bundles, setBundles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState('')
+  const [price, setPrice] = useState('')
+  const [description, setDescription] = useState('')
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const persist = (next) => {
-    setBundles(next)
-    saveBundles(next)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  const load = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('bundles')
+      .select('id, name_ar, discounted_price, description, image_url')
+      .order('created_at', { ascending: false })
+    setBundles(data || [])
+    setLoading(false)
   }
 
-  const startEdit = (bundle) => {
-    setEditing(bundle.id)
-    setForm({ ...bundle, productIds: [...bundle.productIds] })
+  useEffect(() => { load() }, [])
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImageFile(file)
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImagePreview(URL.createObjectURL(file))
   }
 
-  const startNew = () => {
-    setEditing('__new__')
-    setForm({ ...blank, id: `b${Date.now()}` })
-  }
-
-  const cancel = () => { setEditing(null); setForm(blank) }
-
-  const saveForm = () => {
-    if (!form.name || !form.bundlePrice || form.productIds.length < 2) return
-    const entry = {
-      ...form,
-      bundlePrice: Number(form.bundlePrice),
-      originalTotal: Number(form.originalTotal) || form.productIds.reduce((s, id) => s + (products.find(p => p.id === id)?.price || 0), 0),
-      badge: `وفري ${Number(form.originalTotal || 0) - Number(form.bundlePrice)} ج.م`,
-      badgeEn: `Save ${Number(form.originalTotal || 0) - Number(form.bundlePrice)} EGP`,
+  const addBundle = async () => {
+    if (!name.trim() || !price) { setError('الاسم والسعر مطلوبان'); return }
+    setError('')
+    setSaving(true)
+    let image_url = ''
+    if (imageFile) {
+      try {
+        image_url = await uploadToCloudinary(imageFile)
+      } catch {
+        setError('فشل رفع الصورة، حاولي مرة أخرى')
+        setSaving(false)
+        return
+      }
     }
-    const next = editing === '__new__'
-      ? [...bundles, entry]
-      : bundles.map(b => b.id === editing ? entry : b)
-    persist(next)
-    cancel()
+    const { error: insertError } = await supabase.from('bundles').insert({
+      id: crypto.randomUUID(),
+      name_ar: name.trim(),
+      name_en: name.trim(),
+      discounted_price: Number(price),
+      description: description.trim(),
+      image_url,
+    })
+    if (insertError) {
+      setError('فشل الحفظ: ' + insertError.message)
+      setSaving(false)
+      return
+    }
+    setName('')
+    setPrice('')
+    setDescription('')
+    setImageFile(null)
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImagePreview(null)
+    setSaving(false)
+    load()
   }
 
-  const deleteBundle = (id) => {
-    if (!confirm(lang === 'ar' ? 'حذف هذه الحزمة؟' : 'Delete this bundle?')) return
-    persist(bundles.filter(b => b.id !== id))
-  }
-
-  const toggleProduct = (id) => {
-    setForm(f => ({
-      ...f,
-      productIds: f.productIds.includes(id) ? f.productIds.filter(x => x !== id) : [...f.productIds, id],
-    }))
+  const deleteBundle = async (id) => {
+    if (!confirm('تأكيد حذف الباكيدج؟')) return
+    await supabase.from('bundles').delete().eq('id', id)
+    setBundles(prev => prev.filter(b => b.id !== id))
   }
 
   return (
-    <main className="pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-site mx-auto">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+    <div dir="rtl" className="min-h-screen bg-gray-950 text-gray-100 pb-12">
+      <header className="bg-gray-900 border-b border-gray-800 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🌿</span>
+          <span className="text-white font-bold text-sm">Saya Admin — الباكيدجات</span>
+        </div>
+        <a
+          href="/admin"
+          className="text-xs text-gray-500 hover:text-emerald-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-emerald-900/20"
+        >
+          ← المنتجات
+        </a>
+      </header>
+
+      <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
+        {/* Add bundle form */}
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-4">
+          <h2 className="text-white font-bold text-base">إضافة باكيدج جديد</h2>
+
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-jakarta text-label-md">
-                {lang === 'ar' ? 'لوحة الإدارة' : 'Admin'}
-              </span>
-              {saved && (
-                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-jakarta text-label-md text-primary flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px] ms-filled">check_circle</span>
-                  {lang === 'ar' ? 'تم الحفظ' : 'Saved'}
-                </motion.span>
-              )}
-            </div>
-            <h1 className="font-garamond text-headline-md text-primary">
-              {lang === 'ar' ? 'إدارة الباكيدجات' : 'Manage Bundles'}
-            </h1>
+            <label className="text-gray-400 text-xs font-semibold block mb-1.5">اسم الباكيدج *</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="مثال: روتين النضارة الكامل"
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500 transition-all placeholder-gray-600"
+            />
           </div>
+
+          <div>
+            <label className="text-gray-400 text-xs font-semibold block mb-1.5">السعر (ج.م) *</label>
+            <input
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              placeholder="0"
+              min="0"
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500 transition-all placeholder-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-400 text-xs font-semibold block mb-1.5">الوصف</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="اوصفي محتويات الباكيدج..."
+              rows={3}
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500 transition-all placeholder-gray-600 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-400 text-xs font-semibold block mb-1.5">صورة الباكيدج</label>
+            <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-700 rounded-xl cursor-pointer hover:border-emerald-600 transition-colors bg-gray-800 relative overflow-hidden">
+              {imagePreview ? (
+                <img src={imagePreview} alt="معاينة" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-gray-500">
+                  <span className="text-3xl">📷</span>
+                  <span className="text-xs">اضغطي لاختيار صورة</span>
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            </label>
+            {imageFile && (
+              <p className="text-emerald-400 text-xs mt-1.5 flex items-center gap-1">
+                <span>✓</span> <span className="truncate">{imageFile.name}</span>
+              </p>
+            )}
+          </div>
+
+          {error && (
+            <p className="text-red-400 text-xs bg-red-900/20 border border-red-800/40 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
           <button
-            onClick={startNew}
-            className="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-jakarta text-label-md hover:opacity-90 transition-all"
+            onClick={addBundle}
+            disabled={saving || !name.trim() || !price}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl transition-all text-sm"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            {lang === 'ar' ? 'حزمة جديدة' : 'New Bundle'}
+            {saving ? 'جارٍ الإضافة...' : '+ إضافة الباكيدج'}
           </button>
         </div>
-      </motion.div>
 
-      {/* Form */}
-      {editing && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          className="bg-surface-container-low rounded-2xl p-8 mb-10 border border-primary/20 overflow-hidden"
-        >
-          <h2 className="font-garamond text-headline-sm text-primary mb-6 text-right">
-            {editing === '__new__' ? (lang === 'ar' ? 'حزمة جديدة' : 'New Bundle') : (lang === 'ar' ? 'تعديل الحزمة' : 'Edit Bundle')}
+        {/* Bundles list */}
+        <div>
+          <h2 className="text-white font-bold text-base mb-4">
+            الباكيدجات الحالية
+            {!loading && <span className="text-gray-500 font-normal text-xs mr-2">({bundles.length})</span>}
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {[
-              { key: 'name', label: 'الاسم بالعربية', placeholder: 'روتين النضارة...' },
-              { key: 'nameEn', label: 'Name in English', placeholder: 'Radiance Routine...' },
-              { key: 'bundlePrice', label: 'سعر الحزمة (ج.م)', placeholder: '420', type: 'number' },
-              { key: 'originalTotal', label: 'السعر الأصلي (ج.م)', placeholder: '525', type: 'number' },
-            ].map(f => (
-              <div key={f.key}>
-                <label className="block font-jakarta text-label-md text-secondary mb-1 text-right">{f.label}</label>
-                <input
-                  type={f.type || 'text'}
-                  value={form[f.key]}
-                  onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                  placeholder={f.placeholder}
-                  className="w-full bg-white border border-outline-variant/30 rounded-lg px-4 py-3 font-jakarta text-body-sm focus:outline-none focus:border-primary transition-colors text-right"
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label className="block font-jakarta text-label-md text-secondary mb-1 text-right">الوصف بالعربية</label>
-              <textarea
-                value={form.description}
-                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                rows={3}
-                className="w-full bg-white border border-outline-variant/30 rounded-lg px-4 py-3 font-jakarta text-body-sm focus:outline-none focus:border-primary transition-colors text-right resize-none"
-              />
-            </div>
-            <div>
-              <label className="block font-jakarta text-label-md text-secondary mb-1 text-right">Description in English</label>
-              <textarea
-                value={form.descriptionEn}
-                onChange={e => setForm(f => ({ ...f, descriptionEn: e.target.value }))}
-                rows={3}
-                className="w-full bg-white border border-outline-variant/30 rounded-lg px-4 py-3 font-jakarta text-body-sm focus:outline-none focus:border-primary transition-colors resize-none"
-              />
-            </div>
-          </div>
-
-          {/* Product picker */}
-          <div className="mb-6">
-            <label className="block font-jakarta text-label-md text-secondary mb-3 text-right">
-              {lang === 'ar' ? `المنتجات (${form.productIds.length} مختارة)` : `Products (${form.productIds.length} selected)`}
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto pr-1">
-              {products.map(p => {
-                const selected = form.productIds.includes(p.id)
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => toggleProduct(p.id)}
-                    className={`p-3 rounded-xl border-2 transition-all text-right ${selected ? 'border-primary bg-primary/8' : 'border-outline-variant/30 hover:border-primary/40'}`}
-                  >
-                    <img src={p.image} alt={p.name} className="w-full aspect-square object-cover rounded-lg mb-2" />
-                    <p className="font-jakarta text-[11px] text-on-surface leading-snug">{p.name}</p>
-                    <p className="font-jakarta text-[11px] text-secondary mt-1">{p.price} ج.م</p>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="flex gap-3 justify-end">
-            <button
-              onClick={cancel}
-              className="border border-outline-variant/50 text-on-surface-variant px-6 py-3 rounded-full font-jakarta text-label-md hover:border-error hover:text-error transition-colors"
-            >
-              {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-            </button>
-            <button
-              onClick={saveForm}
-              disabled={!form.name || !form.bundlePrice || form.productIds.length < 2}
-              className="bg-primary text-on-primary px-8 py-3 rounded-full font-jakarta text-label-md hover:opacity-90 transition-all disabled:opacity-40"
-            >
-              {lang === 'ar' ? 'حفظ الحزمة' : 'Save Bundle'}
-            </button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Bundles list */}
-      <div className="space-y-4">
-        {bundles.map((bundle, i) => {
-          const bProducts = bundle.productIds.map(id => products.find(p => p.id === id)).filter(Boolean)
-          return (
-            <motion.div
-              key={bundle.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-6 flex items-center gap-6 flex-wrap"
-            >
-              <div className="flex gap-2 flex-shrink-0">
-                {bProducts.slice(0, 3).map(p => (
-                  <div key={p.id} className="w-14 h-14 rounded-lg overflow-hidden bg-surface-container flex-shrink-0">
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+          {loading ? (
+            <p className="text-gray-500 text-sm text-center py-10">جارٍ التحميل...</p>
+          ) : bundles.length === 0 ? (
+            <p className="text-gray-600 text-sm text-center py-10">لا توجد باكيدجات بعد</p>
+          ) : (
+            <div className="space-y-3">
+              {bundles.map(b => (
+                <div key={b.id} className="bg-gray-900 border border-gray-800 rounded-xl flex items-center gap-3 p-3">
+                  <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
+                    {b.image_url
+                      ? <img src={b.image_url} alt={b.name_ar} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-xl">🎁</div>
+                    }
                   </div>
-                ))}
-              </div>
-              <div className="flex-1 text-right">
-                <h3 className="font-garamond text-headline-sm text-primary mb-1">{bundle.name}</h3>
-                <p className="font-jakarta text-body-sm text-on-surface-variant line-clamp-1">{bundle.description}</p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-jakarta text-label-md text-on-surface-variant/60 line-through">{bundle.originalTotal} ج.م</p>
-                <p className="font-garamond text-headline-sm text-primary">{bundle.bundlePrice} ج.م</p>
-              </div>
-              <div className="flex gap-2 flex-shrink-0">
-                <button
-                  onClick={() => startEdit(bundle)}
-                  className="flex items-center gap-1 border border-outline-variant/40 text-on-surface-variant px-4 py-2 rounded-full font-jakarta text-label-md hover:border-primary hover:text-primary transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                  {lang === 'ar' ? 'تعديل' : 'Edit'}
-                </button>
-                <button
-                  onClick={() => deleteBundle(bundle.id)}
-                  className="flex items-center gap-1 border border-outline-variant/40 text-on-surface-variant px-4 py-2 rounded-full font-jakarta text-label-md hover:border-error hover:text-error transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                  {lang === 'ar' ? 'حذف' : 'Delete'}
-                </button>
-              </div>
-            </motion.div>
-          )
-        })}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium leading-snug truncate">{b.name_ar}</p>
+                    {b.description && (
+                      <p className="text-gray-500 text-xs mt-0.5 truncate">{b.description}</p>
+                    )}
+                    <p className="text-emerald-400 text-sm font-bold mt-0.5">{b.discounted_price} ج.م</p>
+                  </div>
+                  <button
+                    onClick={() => deleteBundle(b.id)}
+                    className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-red-900/30 hover:bg-red-900/60 text-red-400 hover:text-red-300 transition-all text-base"
+                    title="حذف"
+                  >
+                    🗑
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      <p className="font-jakarta text-body-sm text-on-surface-variant/60 text-center mt-8">
-        {lang === 'ar'
-          ? 'التعديلات تُحفظ محلياً. للنشر الكامل، تحتاج لتحديث ملف bundles.js.'
-          : 'Changes are saved locally. For full deployment, update the bundles.js file.'}
-      </p>
-    </main>
+    </div>
   )
 }

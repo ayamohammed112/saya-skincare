@@ -115,7 +115,7 @@ function ProductsAdmin({ onLogout }) {
     setLoading(true)
     const { data } = await supabase
       .from('products')
-      .select('id, name, price, category, image_url')
+      .select('id, name, name_ar, price, category, image_url')
       .order('created_at', { ascending: false })
     setProducts(data || [])
     setLoading(false)
@@ -318,7 +318,7 @@ function ProductCard({ product: p, onDelete }) {
         }
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium leading-snug truncate">{p.name}</p>
+        <p className="text-white text-sm font-medium leading-snug truncate">{p.name || p.name_ar}</p>
         <p className="text-gray-500 text-xs mt-0.5">{p.category || '—'}</p>
         <p className="text-emerald-400 text-sm font-bold mt-0.5">{p.price} ج.م</p>
       </div>

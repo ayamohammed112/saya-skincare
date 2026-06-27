@@ -43,6 +43,29 @@ INSERT INTO public.discount_codes (code, type, value, active)
 VALUES ('SAYA10', 'percentage', 10, true)
 ON CONFLICT (code) DO NOTHING;
 
+-- ============================================================
+-- Admin write permissions (required for admin panel to save data)
+-- Run these if INSERT/DELETE from the admin panel fails
+-- ============================================================
+
+-- Allow admin panel to add/delete products
+CREATE POLICY "admin_insert_products" ON public.products FOR INSERT WITH CHECK (true);
+CREATE POLICY "admin_delete_products" ON public.products FOR DELETE USING (true);
+
+-- Allow admin panel to add/delete bundles
+CREATE POLICY "admin_insert_bundles" ON public.bundles FOR INSERT WITH CHECK (true);
+CREATE POLICY "admin_delete_bundles" ON public.bundles FOR DELETE USING (true);
+
+-- description column for bundles (added for admin bundles page)
+ALTER TABLE public.bundles ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- name column for products (admin inserts use 'name', schema uses 'name_ar')
+-- Run whichever matches your actual table:
+--   If your table has name_ar but not name:
+--     ALTER TABLE public.products ADD COLUMN IF NOT EXISTS name TEXT;
+--   If your table has name but not name_ar:
+--     ALTER TABLE public.products ADD COLUMN IF NOT EXISTS name_ar TEXT;
+
 -- Storage bucket: run in Supabase Dashboard > Storage > New Bucket > "product-images" (public)
 -- Or via API:
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true) ON CONFLICT DO NOTHING;
