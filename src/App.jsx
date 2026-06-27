@@ -18,7 +18,6 @@ import SkinQuiz from './pages/SkinQuiz'
 import Bundles from './pages/Bundles'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Terms from './pages/Terms'
-import AdminBundles from './pages/AdminBundles'
 import AdminPanel from './pages/AdminPanel'
 import { useCart } from './context/CartContext'
 import { useLanguage } from './context/LanguageContext'
@@ -79,7 +78,6 @@ export default function App() {
   if (isAdmin) {
     return (
       <Routes location={location} key={location.pathname}>
-        <Route path="/admin/bundles" element={<AdminBundles />} />
         <Route path="/admin/*" element={<AdminPanel />} />
       </Routes>
     )
