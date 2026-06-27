@@ -34,12 +34,14 @@ async function uploadToCloudinary(file) {
   const fd = new FormData()
   fd.append('file', blob, 'image.jpg')
   fd.append('upload_preset', CLOUD_PRESET)
+  fd.append('cloud_name', CLOUD_NAME)
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
     method: 'POST',
     body: fd,
   })
   const json = await res.json()
-  if (!json.secure_url) throw new Error('Upload failed')
+  console.log('[Cloudinary response]', json)
+  if (!json.secure_url) throw new Error(json.error?.message || JSON.stringify(json))
   return json.secure_url
 }
 
@@ -208,8 +210,9 @@ function ProductsAdmin() {
     let image_url = ''
     if (imageFile) {
       try { image_url = await uploadToCloudinary(imageFile) }
-      catch {
-        setMsg({ type: 'error', text: 'فشل رفع الصورة، حاولي مرة أخرى' })
+      catch (err) {
+        console.error('[Upload error - products]', err)
+        setMsg({ type: 'error', text: 'فشل رفع الصورة: ' + err.message })
         setSaving(false)
         return
       }
@@ -335,8 +338,9 @@ function BundlesAdmin() {
     let image_url = ''
     if (imageFile) {
       try { image_url = await uploadToCloudinary(imageFile) }
-      catch {
-        setMsg({ type: 'error', text: 'فشل رفع الصورة، حاولي مرة أخرى' })
+      catch (err) {
+        console.error('[Upload error - bundles]', err)
+        setMsg({ type: 'error', text: 'فشل رفع الصورة: ' + err.message })
         setSaving(false)
         return
       }
