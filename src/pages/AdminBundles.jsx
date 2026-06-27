@@ -53,7 +53,7 @@ export default function AdminBundles() {
     setLoading(true)
     const { data } = await supabase
       .from('bundles')
-      .select('id, name_ar, discounted_price, description, image_url')
+      .select('id, name_ar, price, description_ar, image_url')
       .order('created_at', { ascending: false })
     setBundles(data || [])
     setLoading(false)
@@ -84,11 +84,9 @@ export default function AdminBundles() {
       }
     }
     const { error: insertError } = await supabase.from('bundles').insert({
-      id: crypto.randomUUID(),
       name_ar: name.trim(),
-      name_en: name.trim(),
-      discounted_price: Number(price),
-      description: description.trim(),
+      price: Number(price),
+      description_ar: description.trim(),
       image_url,
     })
     if (insertError) {
@@ -224,10 +222,10 @@ export default function AdminBundles() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium leading-snug truncate">{b.name_ar}</p>
-                    {b.description && (
-                      <p className="text-gray-500 text-xs mt-0.5 truncate">{b.description}</p>
+                    {b.description_ar && (
+                      <p className="text-gray-500 text-xs mt-0.5 truncate">{b.description_ar}</p>
                     )}
-                    <p className="text-emerald-400 text-sm font-bold mt-0.5">{b.discounted_price} ج.م</p>
+                    <p className="text-emerald-400 text-sm font-bold mt-0.5">{b.price} ج.م</p>
                   </div>
                   <button
                     onClick={() => deleteBundle(b.id)}

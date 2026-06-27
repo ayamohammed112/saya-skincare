@@ -181,12 +181,20 @@ function ProductsAdmin({ onLogout }) {
           <span className="text-xl">🌿</span>
           <span className="text-white font-bold text-sm">Saya Admin</span>
         </div>
-        <button
-          onClick={onLogout}
-          className="text-xs text-gray-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-900/20"
-        >
-          خروج
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/admin/bundles"
+            className="text-xs text-gray-500 hover:text-emerald-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-emerald-900/20"
+          >
+            الباكيدجات
+          </a>
+          <button
+            onClick={onLogout}
+            className="text-xs text-gray-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-900/20"
+          >
+            خروج
+          </button>
+        </div>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
