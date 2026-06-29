@@ -3,41 +3,78 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
-import { useRecentlyViewed } from '../context/RecentlyViewedContext'
-import { products, relatedProducts } from '../data/products'
 import { supabase } from '../lib/supabase'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const { addItem } = useCart()
   const { tr, lang } = useLanguage()
-  const { viewedIds, track } = useRecentlyViewed()
   const navigate = useNavigate()
   const p = tr.product
 
-  const product = products.find(x => x.id === +id) || products[0]
-
-  useEffect(() => { track(product.id) }, [product.id])
-  const gallery = product.gallery || [product.image, product.image, product.image, product.image]
-  const displayName = lang === 'ar' ? product.name : (product.nameEn || product.name)
-
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [mainImg, setMainImg] = useState(0)
   const [qty, setQty] = useState(1)
   const [activeTab, setActiveTab] = useState(0)
-  const [sizes, setSizes] = useState([])
   const [selectedSize, setSelectedSize] = useState(null)
 
   useEffect(() => {
-    supabase.from('product_sizes').select('label').eq('product_id', product.id).order('sort_order')
-      .then(({ data }) => { setSizes((data || []).map(s => s.label)); setSelectedSize(null) })
-  }, [product.id])
+    const fetchProduct = async () => {
+      const { data } = await supabase.from('products').select('*').eq('id', id).single()
+      if (data) {
+        setProduct(data)
+        const sizes = data.sizes || []
+        if (sizes.length > 0) setSelectedSize(sizes[0])
+      }
+      setLoading(false)
+    }
+    fetchProduct()
+  }, [id])
+
+  if (loading) {
+    return (
+      <main className="pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-site mx-auto flex justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mt-24" />
+      </main>
+    )
+  }
+
+  if (!product) {
+    return (
+      <main className="pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-site mx-auto text-center">
+        <p className="font-jakarta text-body-lg text-on-surface-variant mt-24">
+          {lang === 'ar' ? 'المنتج غير موجود' : 'Product not found'}
+        </p>
+        <Link to="/shop" className="text-primary underline font-jakarta text-body-md mt-4 inline-block">
+          {lang === 'ar' ? 'العودة للمتجر' : 'Back to shop'}
+        </Link>
+      </main>
+    )
+  }
+
+  const sizes = product.sizes || []
+  const basePrice = sizes.length > 0 ? Math.min(...sizes.map(s => s.price)) : product.price
+  const displayPrice = selectedSize ? selectedSize.price : basePrice
+  const gallery = product.image_url
+    ? [product.image_url, product.image_url, product.image_url, product.image_url]
+    : []
+  const displayName = product.name || ''
 
   const handleAddToCart = () => {
-    addItem({ ...product, qty })
+    addItem({
+      id: product.id,
+      name: product.name,
+      nameEn: product.name,
+      price: displayPrice,
+      image: product.image_url,
+      qty,
+      ...(selectedSize ? { size: `${selectedSize.ml}ml` } : {}),
+    })
   }
 
   const handleBuyNow = () => {
-    addItem({ ...product, qty })
+    handleAddToCart()
     navigate('/checkout')
   }
 
@@ -62,7 +99,9 @@ export default function ProductDetail() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <img src={gallery[mainImg]} alt={displayName} className="w-full h-full object-cover" />
+            {gallery[mainImg] && (
+              <img src={gallery[mainImg]} alt={displayName} className="w-full h-full object-cover" />
+            )}
           </motion.div>
           <div className="grid grid-cols-4 gap-4">
             {gallery.map((img, i) => (
@@ -79,28 +118,15 @@ export default function ProductDetail() {
 
         {/* Info */}
         <div className="flex flex-col justify-start">
-          {/* Badges */}
-          <div className="flex gap-2 mb-6">
-            {product.badges?.map((b, i) => (
-              <span key={i} className={`px-3 py-1 ${b.color} rounded-full font-jakarta text-label-md`}>{b.label}</span>
-            ))}
-          </div>
-
           <h1 className="font-garamond text-display-lg text-primary mb-2 leading-tight">{displayName}</h1>
 
-          {/* Rating */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-1 text-secondary">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={`material-symbols-outlined ${i < product.rating ? 'ms-filled' : ''}`}>star</span>
-              ))}
-            </div>
-            <span className="font-jakarta text-body-sm text-on-surface-variant">({product.reviews} {p.rating})</span>
-          </div>
+          <div className="font-garamond text-headline-md text-primary mb-8">{displayPrice} ج.م</div>
 
-          <div className="font-garamond text-headline-md text-primary mb-8">{product.price} ج.م</div>
-
-          <p className="font-jakarta text-body-lg text-on-surface-variant mb-10 leading-relaxed">{product.description}</p>
+          {product.description && (
+            <p className="font-jakarta text-body-lg text-on-surface-variant mb-10 leading-relaxed">
+              {product.description}
+            </p>
+          )}
 
           {/* Size selector */}
           {sizes.length > 0 && (
@@ -109,17 +135,17 @@ export default function ProductDetail() {
                 {lang === 'ar' ? 'الحجم' : 'Size'}
               </p>
               <div className="flex gap-3 flex-wrap">
-                {sizes.map(size => (
+                {sizes.map((size, i) => (
                   <button
-                    key={size}
-                    onClick={() => setSelectedSize(size === selectedSize ? null : size)}
+                    key={i}
+                    onClick={() => setSelectedSize(size)}
                     className={`px-5 py-2 rounded-xl border-2 font-jakarta text-body-sm transition-all ${
                       selectedSize === size
                         ? 'border-primary bg-primary text-on-primary shadow-md'
                         : 'border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary'
                     }`}
                   >
-                    {size}
+                    {size.ml}ml
                   </button>
                 ))}
               </div>
@@ -182,126 +208,28 @@ export default function ProductDetail() {
           ))}
         </div>
         {activeTab === 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            <div>
-              <h3 className="font-garamond text-headline-sm text-primary mb-6">{lang === 'ar' ? 'لماذا ستعشقينه؟' : 'Why You\'ll Love It'}</h3>
-              <p className="font-jakarta text-body-lg text-on-surface-variant leading-relaxed mb-6">{product.description}</p>
-              <ul className="space-y-4">
-                {product.benefits?.map((b, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary ms-filled mt-1">check_circle</span>
-                    <span className="font-jakarta text-body-md text-on-surface-variant">{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-surface-container-high p-8 rounded-xl border border-outline-variant/10">
-              <h3 className="font-garamond text-headline-sm text-primary mb-6">{p.tabs[1]}</h3>
-              <div className="space-y-6">
-                {product.usage?.map((u, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="h-8 w-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold flex-shrink-0 font-jakarta text-body-sm">{i + 1}</div>
-                    <p className="font-jakarta text-body-md text-on-surface-variant">{u}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="font-jakarta text-body-lg text-on-surface-variant leading-relaxed max-w-xl">
+            {product.description || (lang === 'ar' ? 'لا يوجد وصف متاح.' : 'No description available.')}
           </div>
         )}
         {activeTab === 1 && (
-          <div className="bg-surface-container-high p-8 rounded-xl">
-            <div className="space-y-6 max-w-lg">
-              {product.usage?.map((u, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="h-8 w-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold flex-shrink-0 font-jakarta text-body-sm">{i + 1}</div>
-                  <p className="font-jakarta text-body-md text-on-surface-variant">{u}</p>
-                </div>
-              ))}
-            </div>
+          <div className="font-jakarta text-body-md text-on-surface-variant leading-loose max-w-xl">
+            {lang === 'ar' ? 'يرجى مراجعة العبوة لمعرفة طريقة الاستخدام.' : 'Please refer to packaging for usage instructions.'}
           </div>
         )}
         {activeTab === 2 && (
           <div className="font-jakarta text-body-md text-on-surface-variant leading-loose max-w-xl">
-            <p>Rosa canina seed oil, Tocopherol (Vitamin E), Retinol (Vitamin A), Ascorbic acid (Vitamin C), Jojoba esters, Squalane, Bisabolol.</p>
+            {lang === 'ar' ? 'يرجى مراجعة العبوة لمعرفة المكونات الكاملة.' : 'Please refer to packaging for full ingredient list.'}
           </div>
         )}
         {activeTab === 3 && (
           <div className="font-jakarta text-body-md text-on-surface-variant leading-loose max-w-xl">
-            <p>{lang === 'ar' ? 'شحن مجاني على الطلبات فوق ٣٠٠ ج.م. التوصيل خلال ٣-٥ أيام عمل. إمكانية الإرجاع خلال ١٤ يوم من تاريخ الاستلام.' : 'Free shipping on orders over 300 EGP. Delivery within 3-5 business days. Returns accepted within 14 days of receipt.'}</p>
+            {lang === 'ar'
+              ? 'شحن مجاني على الطلبات فوق ٣٠٠ ج.م. التوصيل خلال ٣-٥ أيام عمل. إمكانية الإرجاع خلال ١٤ يوم من تاريخ الاستلام.'
+              : 'Free shipping on orders over 300 EGP. Delivery within 3-5 business days. Returns accepted within 14 days of receipt.'}
           </div>
         )}
       </section>
-
-      {/* Related */}
-      <section className="mb-24">
-        <div className="flex justify-between items-end mb-12">
-          <h2 className="font-garamond text-headline-md text-primary">{p.related}</h2>
-          <Link to="/shop" className="font-jakarta text-secondary text-label-md hover:underline">{lang === 'ar' ? 'مشاهدة الكل' : 'See All'}</Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-gutter">
-          {relatedProducts.map(rp => (
-            <div
-              key={rp.id}
-              className="flex flex-col gap-4 group cursor-pointer"
-              onClick={() => navigate(`/shop/${rp.id}`)}
-            >
-              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container relative">
-                <img src={rp.image} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <button
-                  onClick={e => { e.stopPropagation(); addItem({ ...rp, description: '' }) }}
-                  className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm text-primary py-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-jakarta text-label-md"
-                >
-                  {lang === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
-                </button>
-              </div>
-              <div>
-                <h4 className="font-garamond text-headline-sm text-on-surface group-hover:text-primary transition-colors">{rp.name}</h4>
-                <p className="text-secondary font-jakarta text-label-md mt-1">{rp.price} ج.م</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Recently Viewed */}
-      {(() => {
-        const recentProducts = viewedIds
-          .filter(rid => rid !== product.id)
-          .map(rid => products.find(x => x.id === rid))
-          .filter(Boolean)
-          .slice(0, 4)
-        if (recentProducts.length === 0) return null
-        return (
-          <section>
-            <div className="flex justify-between items-end mb-12">
-              <h2 className="font-garamond text-headline-md text-primary">
-                {lang === 'ar' ? 'شاهدتِ مؤخراً' : 'Recently Viewed'}
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-gutter">
-              {recentProducts.map(rp => (
-                <div key={rp.id} className="flex flex-col gap-3 group cursor-pointer" onClick={() => navigate(`/shop/${rp.id}`)}>
-                  <div className="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container relative">
-                    <img src={rp.image} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    <button
-                      onClick={e => { e.stopPropagation(); addItem({ ...rp, qty: 1 }) }}
-                      className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm text-primary py-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-jakarta text-label-md"
-                    >
-                      {lang === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
-                    </button>
-                  </div>
-                  <div>
-                    <h4 className="font-garamond text-headline-sm text-on-surface group-hover:text-primary transition-colors">
-                      {lang === 'ar' ? rp.name : (rp.nameEn || rp.name)}
-                    </h4>
-                    <p className="text-secondary font-jakarta text-label-md mt-1">{rp.price} ج.م</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )
-      })()}
     </main>
   )
 }

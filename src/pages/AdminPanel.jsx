@@ -177,6 +177,11 @@ function ProductsAdmin() {
   const [imagePreview, setImagePreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState(null)
+  const [sizes, setSizes] = useState([])
+
+  const addSize = () => setSizes(prev => [...prev, { ml: '', price: '' }])
+  const removeSize = (i) => setSizes(prev => prev.filter((_, idx) => idx !== i))
+  const updateSize = (i, field, val) => setSizes(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
 
   const load = async () => {
     setLoading(true)
@@ -212,15 +217,19 @@ function ProductsAdmin() {
         return
       }
     }
+    const sizesData = sizes
+      .filter(s => s.ml !== '' && s.price !== '')
+      .map(s => ({ ml: Number(s.ml), price: Number(s.price) }))
     const { error } = await supabase.from('products').insert({
       name: name.trim(),
       price: Number(price),
       category,
       image_url,
+      sizes: sizesData,
     })
     if (error) { setMsg({ type: 'error', text: 'فشل الحفظ: ' + error.message }); setSaving(false); return }
     setMsg({ type: 'success', text: 'تمت إضافة المنتج بنجاح ✓' })
-    setName(''); setPrice(''); setCategory(CATEGORIES[0]); setImageFile(null)
+    setName(''); setPrice(''); setCategory(CATEGORIES[0]); setImageFile(null); setSizes([])
     if (imagePreview) URL.revokeObjectURL(imagePreview)
     setImagePreview(null)
     setSaving(false)
@@ -250,6 +259,38 @@ function ProductsAdmin() {
         </Field>
         <Field label="صورة المنتج">
           <ImagePicker preview={imagePreview} onChange={handleImageChange} />
+        </Field>
+        <Field label="المقاسات (اختياري)">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {sizes.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <input
+                  type="number"
+                  value={s.ml}
+                  onChange={e => updateSize(i, 'ml', e.target.value)}
+                  placeholder="مل"
+                  min="0"
+                  style={{ ...inputStyle, width: '45%' }}
+                />
+                <input
+                  type="number"
+                  value={s.price}
+                  onChange={e => updateSize(i, 'price', e.target.value)}
+                  placeholder="السعر"
+                  min="0"
+                  style={{ ...inputStyle, width: '45%' }}
+                />
+                <button
+                  onClick={() => removeSize(i)}
+                  style={{ flexShrink: 0, background: '#fff0f0', border: '1px solid #fecaca', borderRadius: 8, padding: '0.45rem 0.6rem', cursor: 'pointer', color: '#dc2626', fontSize: '0.9rem' }}
+                >✕</button>
+              </div>
+            ))}
+            <button
+              onClick={addSize}
+              style={{ background: 'none', border: '1.5px dashed #e0e0e0', borderRadius: 10, padding: '0.6rem', cursor: 'pointer', color: '#aaa', fontSize: '0.8rem', fontFamily: 'inherit' }}
+            >+ إضافة مقاس</button>
+          </div>
         </Field>
         {msg && <StatusMsg msg={msg} />}
         <button onClick={addProduct} disabled={saving || !name.trim() || !price} style={primaryBtnStyle(saving || !name.trim() || !price)}>
