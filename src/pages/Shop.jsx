@@ -70,7 +70,7 @@ export default function Shop() {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('name, price, category, image_url, id')
+        .select('name, price, category, image_url, id') // v2
       if (error) {
         console.error('Supabase fetch error:', error)
         setLoadingProducts(false)
