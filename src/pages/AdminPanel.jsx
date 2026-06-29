@@ -5,8 +5,6 @@ import { supabase } from '../lib/supabase'
 const ADMIN_PASSWORD = 'Aya321'
 const AUTH_KEY = 'saya_admin_auth'
 const CATEGORIES = ['العناية بالبشرة', 'العطور', 'منتجات الشعر']
-const CLOUD_NAME = 'dtkbxoqph'
-const CLOUD_PRESET = 'aceit_unsigned'
 const PINK = '#E8006F'
 
 async function compressImage(file) {
@@ -29,20 +27,17 @@ async function compressImage(file) {
   })
 }
 
-async function uploadToCloudinary(file) {
+// NOTE: Requires 'product-images' bucket in Supabase Storage (public, no RLS on uploads from admin)
+async function uploadToSupabase(file) {
   const blob = await compressImage(file)
-  const fd = new FormData()
-  fd.append('file', blob, 'image.jpg')
-  fd.append('upload_preset', CLOUD_PRESET)
-  fd.append('cloud_name', CLOUD_NAME)
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-    method: 'POST',
-    body: fd,
+  const filename = `${Date.now()}-${file.name}`
+  const { error } = await supabase.storage.from('product-images').upload(filename, blob, {
+    contentType: 'image/jpeg',
+    upsert: false,
   })
-  const json = await res.json()
-  console.log('[Cloudinary response]', json)
-  if (!json.secure_url) throw new Error(json.error?.message || JSON.stringify(json))
-  return json.secure_url
+  if (error) throw new Error(error.message)
+  const { data } = supabase.storage.from('product-images').getPublicUrl(filename)
+  return data.publicUrl
 }
 
 export default function AdminPanel() {
@@ -209,7 +204,7 @@ function ProductsAdmin() {
     setSaving(true)
     let image_url = ''
     if (imageFile) {
-      try { image_url = await uploadToCloudinary(imageFile) }
+      try { image_url = await uploadToSupabase(imageFile) }
       catch (err) {
         console.error('[Upload error - products]', err)
         setMsg({ type: 'error', text: 'فشل رفع الصورة: ' + err.message })
@@ -337,7 +332,7 @@ function BundlesAdmin() {
     setSaving(true)
     let image_url = ''
     if (imageFile) {
-      try { image_url = await uploadToCloudinary(imageFile) }
+      try { image_url = await uploadToSupabase(imageFile) }
       catch (err) {
         console.error('[Upload error - bundles]', err)
         setMsg({ type: 'error', text: 'فشل رفع الصورة: ' + err.message })
