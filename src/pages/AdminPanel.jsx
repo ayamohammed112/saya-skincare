@@ -178,10 +178,80 @@ function ProductsAdmin() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState(null)
   const [sizes, setSizes] = useState([])
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [editName, setEditName] = useState('')
+  const [editPrice, setEditPrice] = useState('')
+  const [editCategory, setEditCategory] = useState(CATEGORIES[0])
+  const [editSizes, setEditSizes] = useState([])
+  const [editImageFile, setEditImageFile] = useState(null)
+  const [editImagePreview, setEditImagePreview] = useState(null)
+  const [editSaving, setEditSaving] = useState(false)
+  const [editMsg, setEditMsg] = useState(null)
 
   const addSize = () => setSizes(prev => [...prev, { ml: '', price: '' }])
   const removeSize = (i) => setSizes(prev => prev.filter((_, idx) => idx !== i))
   const updateSize = (i, field, val) => setSizes(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
+
+  const addEditSize = () => setEditSizes(prev => [...prev, { ml: '', price: '' }])
+  const removeEditSize = (i) => setEditSizes(prev => prev.filter((_, idx) => idx !== i))
+  const updateEditSize = (i, field, val) => setEditSizes(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
+
+  const openEdit = (product) => {
+    setEditingProduct(product)
+    setEditName(product.name || '')
+    setEditPrice(String(product.price || ''))
+    setEditCategory(product.category || CATEGORIES[0])
+    setEditSizes((product.sizes || []).map(s => ({ ml: String(s.ml), price: String(s.price) })))
+    setEditImageFile(null)
+    setEditImagePreview(product.image_url || null)
+    setEditMsg(null)
+  }
+
+  const closeEdit = () => {
+    if (editImageFile && editImagePreview) URL.revokeObjectURL(editImagePreview)
+    setEditingProduct(null)
+    setEditImageFile(null)
+    setEditImagePreview(null)
+    setEditMsg(null)
+  }
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (editImageFile && editImagePreview) URL.revokeObjectURL(editImagePreview)
+    setEditImageFile(file)
+    setEditImagePreview(URL.createObjectURL(file))
+  }
+
+  const saveEdit = async () => {
+    if (!editName.trim() || !editPrice) { setEditMsg({ type: 'error', text: 'اسم المنتج والسعر مطلوبان' }); return }
+    setEditMsg(null)
+    setEditSaving(true)
+    let image_url = editingProduct.image_url || ''
+    if (editImageFile) {
+      try { image_url = await uploadToSupabase(editImageFile) }
+      catch (err) {
+        setEditMsg({ type: 'error', text: 'فشل رفع الصورة: ' + err.message })
+        setEditSaving(false)
+        return
+      }
+    }
+    const sizesData = editSizes
+      .filter(s => s.ml !== '' && s.price !== '')
+      .map(s => ({ ml: Number(s.ml), price: Number(s.price) }))
+    const { error } = await supabase.from('products').update({
+      name: editName.trim(),
+      price: Number(editPrice),
+      category: editCategory,
+      image_url,
+      sizes: sizesData,
+    }).eq('id', editingProduct.id)
+    if (error) { setEditMsg({ type: 'error', text: 'فشل الحفظ: ' + error.message }); setEditSaving(false); return }
+    setEditMsg({ type: 'success', text: 'تم تحديث المنتج بنجاح ✓' })
+    setEditSaving(false)
+    load()
+    setTimeout(closeEdit, 800)
+  }
 
   const load = async () => {
     setLoading(true)
@@ -247,56 +317,74 @@ function ProductsAdmin() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <FormCard title="إضافة منتج جديد">
-        <Field label="اسم المنتج *">
-          <TextInput value={name} onChange={setName} placeholder="مثال: سيروم فيتامين سي" />
-        </Field>
-        <Field label="السعر (ج.م) *">
-          <NumberInput value={price} onChange={setPrice} />
-        </Field>
-        <Field label="الفئة">
-          <SelectInput value={category} onChange={setCategory} options={CATEGORIES} />
-        </Field>
-        <Field label="صورة المنتج">
-          <ImagePicker preview={imagePreview} onChange={handleImageChange} />
-        </Field>
-        <Field label="المقاسات (اختياري)">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {sizes.map((s, i) => (
-              <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <input
-                  type="number"
-                  value={s.ml}
-                  onChange={e => updateSize(i, 'ml', e.target.value)}
-                  placeholder="مل"
-                  min="0"
-                  style={{ ...inputStyle, width: '45%' }}
-                />
-                <input
-                  type="number"
-                  value={s.price}
-                  onChange={e => updateSize(i, 'price', e.target.value)}
-                  placeholder="السعر"
-                  min="0"
-                  style={{ ...inputStyle, width: '45%' }}
-                />
-                <button
-                  onClick={() => removeSize(i)}
-                  style={{ flexShrink: 0, background: '#fff0f0', border: '1px solid #fecaca', borderRadius: 8, padding: '0.45rem 0.6rem', cursor: 'pointer', color: '#dc2626', fontSize: '0.9rem' }}
-                >✕</button>
-              </div>
-            ))}
-            <button
-              onClick={addSize}
-              style={{ background: 'none', border: '1.5px dashed #e0e0e0', borderRadius: 10, padding: '0.6rem', cursor: 'pointer', color: '#aaa', fontSize: '0.8rem', fontFamily: 'inherit' }}
-            >+ إضافة مقاس</button>
+      {editingProduct ? (
+        <FormCard title={`تعديل: ${editingProduct.name || 'المنتج'}`}>
+          <Field label="اسم المنتج *">
+            <TextInput value={editName} onChange={setEditName} placeholder="مثال: سيروم فيتامين سي" />
+          </Field>
+          <Field label="السعر (ج.م) *">
+            <NumberInput value={editPrice} onChange={setEditPrice} />
+          </Field>
+          <Field label="الفئة">
+            <SelectInput value={editCategory} onChange={setEditCategory} options={CATEGORIES} />
+          </Field>
+          <Field label="صورة المنتج">
+            <ImagePicker preview={editImagePreview} onChange={handleEditImageChange} />
+          </Field>
+          <Field label="المقاسات (اختياري)">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {editSizes.map((s, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input type="number" value={s.ml} onChange={e => updateEditSize(i, 'ml', e.target.value)} placeholder="مل" min="0" style={{ ...inputStyle, width: '45%' }} />
+                  <input type="number" value={s.price} onChange={e => updateEditSize(i, 'price', e.target.value)} placeholder="السعر" min="0" style={{ ...inputStyle, width: '45%' }} />
+                  <button onClick={() => removeEditSize(i)} style={{ flexShrink: 0, background: '#fff0f0', border: '1px solid #fecaca', borderRadius: 8, padding: '0.45rem 0.6rem', cursor: 'pointer', color: '#dc2626', fontSize: '0.9rem' }}>✕</button>
+                </div>
+              ))}
+              <button onClick={addEditSize} style={{ background: 'none', border: '1.5px dashed #e0e0e0', borderRadius: 10, padding: '0.6rem', cursor: 'pointer', color: '#aaa', fontSize: '0.8rem', fontFamily: 'inherit' }}>+ إضافة مقاس</button>
+            </div>
+          </Field>
+          {editMsg && <StatusMsg msg={editMsg} />}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={saveEdit} disabled={editSaving || !editName.trim() || !editPrice} style={{ ...primaryBtnStyle(editSaving || !editName.trim() || !editPrice), flex: 1 }}>
+              {editSaving ? 'جارٍ الحفظ...' : 'حفظ التعديلات'}
+            </button>
+            <button onClick={closeEdit} style={{ padding: '0.875rem 1.25rem', background: '#f5f5f5', color: '#666', border: 'none', borderRadius: 10, fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}>
+              إلغاء
+            </button>
           </div>
-        </Field>
-        {msg && <StatusMsg msg={msg} />}
-        <button onClick={addProduct} disabled={saving || !name.trim() || !price} style={primaryBtnStyle(saving || !name.trim() || !price)}>
-          {saving ? 'جارٍ الإضافة...' : '+ إضافة المنتج'}
-        </button>
-      </FormCard>
+        </FormCard>
+      ) : (
+        <FormCard title="إضافة منتج جديد">
+          <Field label="اسم المنتج *">
+            <TextInput value={name} onChange={setName} placeholder="مثال: سيروم فيتامين سي" />
+          </Field>
+          <Field label="السعر (ج.م) *">
+            <NumberInput value={price} onChange={setPrice} />
+          </Field>
+          <Field label="الفئة">
+            <SelectInput value={category} onChange={setCategory} options={CATEGORIES} />
+          </Field>
+          <Field label="صورة المنتج">
+            <ImagePicker preview={imagePreview} onChange={handleImageChange} />
+          </Field>
+          <Field label="المقاسات (اختياري)">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {sizes.map((s, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input type="number" value={s.ml} onChange={e => updateSize(i, 'ml', e.target.value)} placeholder="مل" min="0" style={{ ...inputStyle, width: '45%' }} />
+                  <input type="number" value={s.price} onChange={e => updateSize(i, 'price', e.target.value)} placeholder="السعر" min="0" style={{ ...inputStyle, width: '45%' }} />
+                  <button onClick={() => removeSize(i)} style={{ flexShrink: 0, background: '#fff0f0', border: '1px solid #fecaca', borderRadius: 8, padding: '0.45rem 0.6rem', cursor: 'pointer', color: '#dc2626', fontSize: '0.9rem' }}>✕</button>
+                </div>
+              ))}
+              <button onClick={addSize} style={{ background: 'none', border: '1.5px dashed #e0e0e0', borderRadius: 10, padding: '0.6rem', cursor: 'pointer', color: '#aaa', fontSize: '0.8rem', fontFamily: 'inherit' }}>+ إضافة مقاس</button>
+            </div>
+          </Field>
+          {msg && <StatusMsg msg={msg} />}
+          <button onClick={addProduct} disabled={saving || !name.trim() || !price} style={primaryBtnStyle(saving || !name.trim() || !price)}>
+            {saving ? 'جارٍ الإضافة...' : '+ إضافة المنتج'}
+          </button>
+        </FormCard>
+      )}
 
       <section>
         <SectionTitle count={!loading ? products.length : null}>المنتجات الحالية</SectionTitle>
@@ -311,7 +399,7 @@ function ProductsAdmin() {
                 <p style={catLabel}>{cat} ({items.length})</p>
                 <div style={listStack}>
                   {items.map(p => (
-                    <ItemCard key={p.id} image={p.image_url} title={p.name || p.name_ar} sub={p.category} price={p.price} onDelete={() => deleteProduct(p.id)} />
+                    <ItemCard key={p.id} image={p.image_url} title={p.name || p.name_ar} sub={p.category} price={p.price} onDelete={() => deleteProduct(p.id)} onEdit={() => openEdit(p)} />
                   ))}
                 </div>
               </div>
@@ -321,7 +409,7 @@ function ProductsAdmin() {
                 <p style={{ ...catLabel, color: '#999' }}>أخرى ({uncategorized.length})</p>
                 <div style={listStack}>
                   {uncategorized.map(p => (
-                    <ItemCard key={p.id} image={p.image_url} title={p.name || p.name_ar} sub="—" price={p.price} onDelete={() => deleteProduct(p.id)} />
+                    <ItemCard key={p.id} image={p.image_url} title={p.name || p.name_ar} sub="—" price={p.price} onDelete={() => deleteProduct(p.id)} onEdit={() => openEdit(p)} />
                   ))}
                 </div>
               </div>
@@ -529,7 +617,7 @@ function StatusMsg({ msg }) {
   )
 }
 
-function ItemCard({ image, title, sub, price, onDelete, emoji = '🧴' }) {
+function ItemCard({ image, title, sub, price, onDelete, onEdit, emoji = '🧴' }) {
   return (
     <div style={{
       background: '#fff', border: '1px solid #f0f0f0', borderRadius: 12,
@@ -546,17 +634,32 @@ function ItemCard({ image, title, sub, price, onDelete, emoji = '🧴' }) {
         {sub && <p style={{ fontSize: '0.75rem', color: '#aaa', margin: '0.125rem 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub}</p>}
         <p style={{ fontSize: '0.875rem', fontWeight: 700, color: PINK, margin: '0.125rem 0 0' }}>{price} ج.م</p>
       </div>
-      <button
-        onClick={onDelete}
-        style={{
-          flexShrink: 0, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          borderRadius: 8, background: '#fff0f0', border: '1px solid #fecaca',
-          color: '#dc2626', fontSize: '1rem', cursor: 'pointer',
-        }}
-        title="حذف"
-      >
-        🗑
-      </button>
+      <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0 }}>
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            style={{
+              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 8, background: '#f0f4ff', border: '1px solid #c7d7fa',
+              color: '#3b5bdb', fontSize: '1rem', cursor: 'pointer',
+            }}
+            title="تعديل"
+          >
+            ✏️
+          </button>
+        )}
+        <button
+          onClick={onDelete}
+          style={{
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 8, background: '#fff0f0', border: '1px solid #fecaca',
+            color: '#dc2626', fontSize: '1rem', cursor: 'pointer',
+          }}
+          title="حذف"
+        >
+          🗑
+        </button>
+      </div>
     </div>
   )
 }
