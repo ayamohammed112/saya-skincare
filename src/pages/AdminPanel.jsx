@@ -213,11 +213,10 @@ function ProductsAdmin() {
       }
     }
     const { error } = await supabase.from('products').insert({
-      name: name.trim(),
+      name_ar: name.trim(),
       price: Number(price),
       category,
       image_url,
-      in_stock: true,
     })
     if (error) { setMsg({ type: 'error', text: 'فشل الحفظ: ' + error.message }); setSaving(false); return }
     setMsg({ type: 'success', text: 'تمت إضافة المنتج بنجاح ✓' })
