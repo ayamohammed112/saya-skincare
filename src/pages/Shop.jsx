@@ -67,15 +67,20 @@ export default function Shop() {
   const [page, setPage] = useState(1)
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('id, name, name_ar, name_en, price, original_price, category, image_url')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        console.log('[Shop] raw fetched products:', data)
-        setProducts((data || []).map(normalizeProduct))
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('name, name_ar, price, original_price, category, image_url, id')
+      if (error) {
+        console.error('Supabase fetch error:', error)
         setLoadingProducts(false)
-      })
+        return
+      }
+      console.log('Fetched products:', data)
+      setProducts(data ? data.map(normalizeProduct) : [])
+      setLoadingProducts(false)
+    }
+    fetchProducts()
   }, [])
 
   // Reset page when any filter changes
