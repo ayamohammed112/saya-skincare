@@ -72,6 +72,7 @@ export default function Shop() {
       .select('id, name, name_ar, name_en, price, original_price, category, image_url')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
+        console.log('[Shop] raw fetched products:', data)
         setProducts((data || []).map(normalizeProduct))
         setLoadingProducts(false)
       })
@@ -80,17 +81,8 @@ export default function Shop() {
   // Reset page when any filter changes
   useEffect(() => { setPage(1) }, [selectedCat, priceMax, sortBy, searchQuery])
 
-  let filtered = products.filter(p => {
-    const catMatch = selectedCat === 'all' || p.category === selectedCat
-    const priceMatch = p.price <= priceMax
-    const q = searchQuery.toLowerCase()
-    const searchMatch = !q || p.name.toLowerCase().includes(q) || (p.nameEn && p.nameEn.toLowerCase().includes(q))
-    return catMatch && priceMatch && searchMatch
-  })
-
-  if (sortBy === 1) filtered = [...filtered].sort((a, b) => a.price - b.price)
-  else if (sortBy === 2) filtered = [...filtered].sort((a, b) => b.price - a.price)
-  else if (sortBy === 3) filtered = [...filtered].sort((a, b) => b.reviews - a.reviews)
+  // DEBUG: bypass all filters to verify Supabase data reaches the UI
+  let filtered = products
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
