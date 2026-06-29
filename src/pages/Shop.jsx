@@ -69,8 +69,7 @@ export default function Shop() {
   useEffect(() => {
     supabase
       .from('products')
-      .select('id, name, name_ar, name_en, price, original_price, category, image_url, in_stock')
-      .eq('in_stock', true)
+      .select('id, name, name_ar, name_en, price, original_price, category, image_url')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         setProducts((data || []).map(normalizeProduct))

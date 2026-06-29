@@ -182,7 +182,7 @@ function ProductsAdmin() {
     setLoading(true)
     const { data } = await supabase
       .from('products')
-      .select('id, name, name_ar, price, category, image_url')
+      .select('*')
       .order('created_at', { ascending: false })
     setProducts(data || [])
     setLoading(false)
