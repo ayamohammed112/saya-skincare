@@ -213,7 +213,7 @@ function ProductsAdmin() {
       }
     }
     const { error } = await supabase.from('products').insert({
-      name_ar: name.trim(),
+      name: name.trim(),
       price: Number(price),
       category,
       image_url,
